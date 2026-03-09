@@ -12,7 +12,7 @@ namespace brakingSystem
 
     class MotionHandler : public rclcpp::Node
     {
-    public:
+    public:--
         MotionHandler();
 
     private:

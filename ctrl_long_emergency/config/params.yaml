@@ -1,0 +1,3 @@
+/behavior_planner:
+    ros__parameters:
+        publish_rate: 50 # hz

@@ -1,6 +1,6 @@
-#include <plan_ctrl_long_emergency/ctrlLongEmergency.hpp>
+#include <ctrl_long_emergency/ctrlLongEmergency.hpp>
 
-crp::apl::CtrlLongEmergency ::CtrlLongEmergency () : Node("ctrl_long_emergency")
+brakingSystem::CtrlLongEmergency ::CtrlLongEmergency () : Node("ctrl_long_emergency")
 {
     this->declare_parameter<std::string>("input_topic_ego", "ego");
     this->declare_parameter<std::string>("input_topic_trajectory", "trajectory");
@@ -8,32 +8,36 @@ crp::apl::CtrlLongEmergency ::CtrlLongEmergency () : Node("ctrl_long_emergency")
     this->declare_parameter<bool>("debug_enabled", false);
 
     std::string inputTopicEgo;
-    std::string inputTopicTajectory;
+    std::string inputTopicTrajectory;
     std::string outputTopicControl;
 
-    m_subEgo_ = this->create_subscription<crp_msgs::msg::ego>(
+    this->get_parameter("input_topic_ego", inputTopicEgo);
+    this->get_parameter("input_topic_trajectory", inputTopicTrajectory);
+    this->get_parameter("output_topic_control", outputTopicControl);
+
+    m_subEgo_ = this->create_subscription<crp_msgs::msg::Ego>(
         inputTopicEgo,
         1,
         std::bind(&CtrlLongEmergency::egoCallback, this, std::placeholders::_1));
 
-    m_subTrajectory_ = this->create_publisher<crp_msgs::msg::Trajectory>(
-        inputTopicTrajectory
+    m_subTrajectory_ = this->create_subscription<tier4_planning_msgs::msg::Trajectory>(
+        inputTopicTrajectory,
         1,
         std::bind(&CtrlLongEmergency::trajectoryCallback, this, std::placeholders::_1));
 
-    m_pubControl = this->create_publisher<autoware_control_msgs::msg::Control>(
+    m_pubControl_ = this->create_publisher<autoware_control_msgs::msg::Control>(
         outputTopicControl,
         1);
 
     RCLCPP_INFO(this->get_logger(), "ctrl_long_emergency node has been started");
 }
 
-void brakingSystem::CtrlLongEmergency::egoCallback(const crp_msgs::msg::ego::SharedPtr msg)
+void brakingSystem::CtrlLongEmergency::egoCallback(const crp_msgs::msg::Ego::SharedPtr msg)
 {
     // Implementation for ego callback
 }
 
-void brakingSystem::CtrlLongEmergency::trajectoryCallback(const crp_msgs::msg::trajectory::SharedPtr msg)
+void brakingSystem::CtrlLongEmergency::trajectoryCallback(const tier4_planning_msgs::msg::Trajectory::SharedPtr msg)
 {
     // Implementation for trajectory callback
 }

@@ -18,7 +18,7 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
     this->get_parameter("input_topic_target_space", inputTopicTargetSpace);
     this->get_parameter("output_topic_trajectory", outputTopicTrajectory);
 
-    m_subScenario_ = this->create_subscription<crp_msgs::msg::Scenario>(
+    m_subScenario_ = this->create_subscription<tier4_planning_msgs::msg::Scenario>(
         inputTopicScenario,
         1,
         std::bind(&MotionHandler::scenarioCallback, this, std::placeholders::_1));
@@ -33,7 +33,7 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
         1,
         std::bind(&MotionHandler::targetSpaceCallback, this, std::placeholders::_1));
 
-    m_pubTrajectory_ = this->create_publisher<tier4_planning_msgs::msg::Trajectory>(
+    m_pubTrajectory_ = this->create_publisher<autoware_planning_msgs::msg::Trajectory>(
         outputTopicTrajectory,
         1);
 
@@ -41,7 +41,7 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
 }
 
 
-void brakingSystem::MotionHandler::scenarioCallback(const crp_msgs::msg::Scenario::SharedPtr msg)
+void brakingSystem::MotionHandler::scenarioCallback(const tier4_planning_msgs::msg::Scenario::SharedPtr msg)
 {
     // Implementation for scenario callback
 }

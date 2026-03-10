@@ -9,13 +9,12 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(crp_msgs REQUIRED)
-find_package(tier4_planning_msgs REQUIRED)
 find_package(autoware_control_msgs REQUIRED)
 
 include_directories(include)
 
 add_executable(ctrl_long_emergency src/ctrlLongEmergency.cpp)
-ament_target_dependencies(ctrl_long_emergency rclcpp crp_msgs tier4_planning_msgs autoware_control_msgs)
+ament_target_dependencies(ctrl_long_emergency rclcpp crp_msgs autoware_control_msgs)
 
 
 install(TARGETS

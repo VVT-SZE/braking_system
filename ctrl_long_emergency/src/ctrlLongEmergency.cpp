@@ -20,7 +20,7 @@ brakingSystem::CtrlLongEmergency ::CtrlLongEmergency () : Node("ctrl_long_emerge
         1,
         std::bind(&CtrlLongEmergency::egoCallback, this, std::placeholders::_1));
 
-    m_subTrajectory_ = this->create_subscription<tier4_planning_msgs::msg::Trajectory>(
+    m_subTrajectory_ = this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
         inputTopicTrajectory,
         1,
         std::bind(&CtrlLongEmergency::trajectoryCallback, this, std::placeholders::_1));
@@ -37,7 +37,7 @@ void brakingSystem::CtrlLongEmergency::egoCallback(const crp_msgs::msg::Ego::Sha
     // Implementation for ego callback
 }
 
-void brakingSystem::CtrlLongEmergency::trajectoryCallback(const tier4_planning_msgs::msg::Trajectory::SharedPtr msg)
+void brakingSystem::CtrlLongEmergency::trajectoryCallback(const autoware_planning_msgs::msg::Trajectory::SharedPtr msg)
 {
     // Implementation for trajectory callback
 }

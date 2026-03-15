@@ -28,6 +28,7 @@ namespace brakingSystem
         // Store the latest ego pose and heading
         geometry_msgs::msg::Point m_ego_pose_;
         float m_ego_heading_;
+        double m_critical_distance_{50.0};
     };
 
 } // namespace brakingSystem

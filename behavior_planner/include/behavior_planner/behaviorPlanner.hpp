@@ -24,6 +24,11 @@ namespace brakingSystem
 
         rclcpp::Publisher<tier4_planning_msgs::msg::Scenario>::SharedPtr m_pubScenario_;
         rclcpp::Publisher<crp_msgs::msg::TargetSpace>::SharedPtr m_pubTargetSpace_;
+
+        // Store the latest ego pose and heading
+        geometry_msgs::msg::Point m_ego_pose_;
+        float m_ego_heading_;
+        double m_critical_distance_{50.0};
     };
 
 } // namespace brakingSystem

@@ -6,70 +6,65 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
     this->declare_parameter<std::string>("input_topic_scenario", "scenario");
     this->declare_parameter<std::string>("input_topic_target_space", "plan/target_space");
     this->declare_parameter<std::string>("output_topic_trajectory", "plan/longEmergency/trajectory");
-    this->declare_parameter<bool>("debug_enabled", false);
 
-    std::string inputTopicEgo;
-    std::string inputTopicScenario;
-    std::string inputTopicTargetSpace;
-    std::string outputTopicTrajectory;
-
+    std::string inputTopicEgo, inputTopicScenario, inputTopicTargetSpace, outputTopicTrajectory;
     this->get_parameter("input_topic_ego", inputTopicEgo);
     this->get_parameter("input_topic_scenario", inputTopicScenario);
     this->get_parameter("input_topic_target_space", inputTopicTargetSpace);
     this->get_parameter("output_topic_trajectory", outputTopicTrajectory);
 
     m_subScenario_ = this->create_subscription<tier4_planning_msgs::msg::Scenario>(
-        inputTopicScenario,
-        1,
-        std::bind(&MotionHandler::scenarioCallback, this, std::placeholders::_1));
+        inputTopicScenario, 1, std::bind(&MotionHandler::scenarioCallback, this, std::placeholders::_1));
 
     m_subEgo_ = this->create_subscription<crp_msgs::msg::Ego>(
-        inputTopicEgo,
-        1,
-        std::bind(&MotionHandler::egoCallback, this, std::placeholders::_1));x
+        inputTopicEgo, 1, std::bind(&MotionHandler::egoCallback, this, std::placeholders::_1));
 
     m_subTargetSpace_ = this->create_subscription<crp_msgs::msg::TargetSpace>(
-        inputTopicTargetSpace,
-        1,
-        std::bind(&MotionHandler::targetSpaceCallback, this, std::placeholders::_1));
+        inputTopicTargetSpace, 1, std::bind(&MotionHandler::targetSpaceCallback, this, std::placeholders::_1));
 
     m_pubTrajectory_ = this->create_publisher<autoware_planning_msgs::msg::Trajectory>(
-        outputTopicTrajectory,
-        1);
+        outputTopicTrajectory, 1);
+
+    m_current_scenario_ = ""; // Kezdőérték
 
     RCLCPP_INFO(this->get_logger(), "Plan_long_emergency node has been started");
 }
 
-
 void brakingSystem::MotionHandler::scenarioCallback(const tier4_planning_msgs::msg::Scenario::SharedPtr msg)
 {
-    // Implementation for scenario callback
-    RCLCPP_INFO(this->get_logger(), "Recieved scenario");
+    m_current_scenario_ = msg->current_scenario;
+    RCLCPP_INFO(this->get_logger(), "Current scenario: %s", m_current_scenario_.c_str());
 }
-
 
 void brakingSystem::MotionHandler::egoCallback(const crp_msgs::msg::Ego::SharedPtr msg)
 {   
-    // Implementation for ego callback
-    // is not needed for this dummy version
-    m_ego_pose_ = msg->pose.pose.position;
-    m_ego_heading_ = msg->orientation;
+    (void)msg;
 }
-
 
 void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::TargetSpace::SharedPtr msg)
 {
-    // Implementation for targetSpace callback
+    autoware_planning_msgs::msg::Trajectory trajectory;
+    trajectory.header = msg->header;
 
-    // null trajectory
-    crp_msgs::msg::Trajectory trajectory;
-    trajectory.points.clear(); 
+    bool is_emergency = (m_current_scenario_ == "Emergency");
+
+    for (const auto & path_point : msg->path.path.points)
+    {
+        autoware_planning_msgs::msg::TrajectoryPoint traj_point;
+        traj_point.pose = path_point.point.pose;
+        
+        if (is_emergency) {
+            traj_point.longitudinal_velocity_mps = 0.0;
+        } else {
+            traj_point.longitudinal_velocity_mps = path_point.point.longitudinal_velocity_mps;
+        }
+        
+        trajectory.points.push_back(traj_point);
+    }
 
     m_pubTrajectory_->publish(trajectory);
-
-    RCLCPP_INFO(this->get_logger(), "Published zero trajectory");
+    RCLCPP_INFO(this->get_logger(), "Published trajectory. Emergency: %s", is_emergency ? "YES" : "NO");
 }
-
 
 int main(int argc, char * argv[])
 {

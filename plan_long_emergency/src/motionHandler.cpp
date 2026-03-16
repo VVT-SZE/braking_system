@@ -26,7 +26,7 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
     m_subEgo_ = this->create_subscription<crp_msgs::msg::Ego>(
         inputTopicEgo,
         1,
-        std::bind(&MotionHandler::egoCallback, this, std::placeholders::_1));
+        std::bind(&MotionHandler::egoCallback, this, std::placeholders::_1));x
 
     m_subTargetSpace_ = this->create_subscription<crp_msgs::msg::TargetSpace>(
         inputTopicTargetSpace,
@@ -44,18 +44,30 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
 void brakingSystem::MotionHandler::scenarioCallback(const tier4_planning_msgs::msg::Scenario::SharedPtr msg)
 {
     // Implementation for scenario callback
+    RCLCPP_INFO(this->get_logger(), "Recieved scenario");
 }
 
 
 void brakingSystem::MotionHandler::egoCallback(const crp_msgs::msg::Ego::SharedPtr msg)
-{
+{   
     // Implementation for ego callback
+    // is not needed for this dummy version
+    m_ego_pose_ = msg->pose.pose.position;
+    m_ego_heading_ = msg->orientation;
 }
 
 
 void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::TargetSpace::SharedPtr msg)
 {
     // Implementation for targetSpace callback
+
+    // null trajectory
+    crp_msgs::msg::Trajectory trajectory;
+    trajectory.points.clear(); 
+
+    m_pubTrajectory_->publish(trajectory);
+
+    RCLCPP_INFO(this->get_logger(), "Published zero trajectory");
 }
 
 

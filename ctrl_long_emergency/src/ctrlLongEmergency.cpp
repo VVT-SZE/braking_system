@@ -41,15 +41,11 @@ void brakingSystem::CtrlLongEmergency::egoCallback(const crp_msgs::msg::Ego::Sha
 
 void brakingSystem::CtrlLongEmergency::trajectoryCallback(const autoware_planning_msgs::msg::Trajectory::SharedPtr msg)
 {
-    // Implementation for trajectory callback
-    double target_velocity = 0.0;
     if (msg->points.size() > 0)
     {
         double first_point = msg->points[0];
-        target_velocity = first_point.longitudinal_velocity_mps;
+        m_control_msg.longitudinal.velocity = first_point.longitudinal_velocity_mps;
     }
-
-    m_control_msg.longitudinal.velocity = target_velocity;
 }
 
 void brakingSystem::CtrlLongEmergency::run()

@@ -20,7 +20,6 @@ brakingSystem::BehaviorPlanner::BehaviorPlanner() : Node("behavior_planner")
     this->get_parameter<std::string>("output_topic_target_space", outputTopicTargetSpace);
     this->get_parameter<double>("critical_distance", m_critical_distance_);
 
-
     m_subScenario_ = this->create_subscription<crp_msgs::msg::Scenario>(
         inputTopicScenario,
         1,
@@ -61,6 +60,7 @@ void brakingSystem::BehaviorPlanner::scenarioCallback(const crp_msgs::msg::Scena
 
         if (obj_x > 0 && obj_x < m_critical_distance_ && std::abs(obj_y) < LANE_WIDTH / 2.0f)
         {
+            // change to push back the whole object
             critical_objects_x_y.push_back(std::make_pair(obj_x, obj_y));
             if (closest > obj_x)
             {
@@ -72,6 +72,7 @@ void brakingSystem::BehaviorPlanner::scenarioCallback(const crp_msgs::msg::Scena
     }
     if (!critical_objects_x_y.empty())
     {
+        // change to send the correct strategy and targetspace
         std::pair<double, double> critical_obj = critical_objects_x_y[closest_id];
         RCLCPP_INFO(this->get_logger(), "Closest object X: %f, Y: %f", critical_obj.first, critical_obj.second);
     }

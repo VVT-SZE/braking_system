@@ -48,22 +48,59 @@ void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::Targ
 
     bool is_emergency = (m_current_scenario_ == "Emergency");
 
+    double min_distance = 1.0; // 1 méterként veszünk fel pontokat a trajektóriába
+    double last_x =  0.0;
+    double last_y = 0.0;
+    bool first_point = true;
+
     for (const auto & path_point : msg->path.path.points)
     {
-        autoware_planning_msgs::msg::TrajectoryPoint traj_point;
-        traj_point.pose = path_point.point.pose;
-        
-        if (is_emergency) {
-            traj_point.longitudinal_velocity_mps = 0.0;
-        } else {
-            traj_point.longitudinal_velocity_mps = path_point.point.longitudinal_velocity_mps;
+        double x = path_point.point.pose.position.x;
+        double y = path_point.point.pose.position.y;
+
+        if (first_point)
+        {
+            autoware_planning_msgs::msg::TrajectoryPoint trajectory_point;
+            trajectory_point.pose = path_point.point.pose;
+
+            if (is_emergency)
+            
+                trajectory_point.longitudinal_velocity_mps = 0.0;
+            else
+                trajectory_point.longitudinal_velocity_mps = path_point.point.longitudinal_velocity_mps;
+
+            trajectory.points.push_back(trajectory_point);
+
+            last_x = x;
+            last_y = y;
+            first_point = false;
+            continue;
         }
-        
-        trajectory.points.push_back(traj_point);
+
+        double dist = std::hypot(x - last_x, y - last_y);
+
+        if ( dist >= min_distance)
+        {
+             autoware_planning_msgs::msg::TrajectoryPoint trajectory_point;
+             trajectory_point.pose = path_point.point.pose;
+
+             if (is_emergency)
+            
+                trajectory_point.longitudinal_velocity_mps = 0.0;
+            else
+                trajectory_point.longitudinal_velocity_mps = path_point.point.longitudinal_velocity_mps;
+                
+            trajectory.points.push_back(trajectory_point);
+
+            last_x = x;
+            last_y = y;
+
+        }   
     }
 
     m_pubTrajectory_->publish(trajectory);
-    RCLCPP_INFO(this->get_logger(), "Published trajectory. Emergency: %s", is_emergency ? "YES" : "NO");
+
+    RCLCPP_INFO(this->get_logger(), "Published binary trajectory");
 }
 
 int main(int argc, char * argv[])

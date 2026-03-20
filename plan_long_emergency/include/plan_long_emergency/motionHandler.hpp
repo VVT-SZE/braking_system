@@ -25,6 +25,8 @@ namespace brakingSystem
         rclcpp::Subscription<tier4_planning_msgs::msg::Scenario>::SharedPtr m_subScenario_;
 
         rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr m_pubTrajectory_;
+
+        std::string m_current_scenario_;
     };
 
 } // namespace brakingSystem

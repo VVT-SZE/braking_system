@@ -1,13 +1,5 @@
 #include <behavior_planner/behaviorPlanner.hpp>
 
-enum class ScenarioType
-{
-    NO_ACTION = 0,
-    WARNING_LEVEL = 1,
-    LONG_EMERGENCY_AVOID = 2,
-    LONG_EMERGENCY_IMPACT = 3
-};
-
 brakingSystem::BehaviorPlanner::BehaviorPlanner() : Node("behavior_planner")
 {
     this->declare_parameter<std::string>("input_topic_ego", "ego");
@@ -98,7 +90,7 @@ void brakingSystem::BehaviorPlanner::scenarioCallback(const crp_msgs::msg::Scena
 
         // Create Scenario message and add type
         auto scenario_msg = tier4_planning_msgs::msg::Scenario();
-        scenario_msg.current_scenario = ScenarioType::LONG_EMERGENCY_IMPACT;
+        scenario_msg.current_scenario = "LONG_EMERGENCY_IMPACT";
 
         // Publish the closest object data
         m_pubScenario_->publish(scenario_msg);

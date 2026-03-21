@@ -9,7 +9,6 @@
 
 namespace brakingSystem
 {
-
     class BehaviorPlanner : public rclcpp::Node
     {
     public:

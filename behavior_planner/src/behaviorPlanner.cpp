@@ -43,16 +43,12 @@ brakingSystem::BehaviorPlanner::BehaviorPlanner() : Node("behavior_planner")
 
 void brakingSystem::BehaviorPlanner::scenarioCallback(const crp_msgs::msg::Scenario::SharedPtr msg)
 {
+    // TODO: calculate distance based on left and right lane distance from each other.
     const float LANE_WIDTH = 3.5f;
     this->get_parameter<double>("critical_distance", m_critical_distance_);
 
-    int closest_id = -1;
-    float closest = std::numeric_limits<float>::max();
-
-    std::vector<std::pair<double, double>> critical_objects_x_y;
-
-    int counter = 0;
-
+    std::vector<autoware_perception_msgs::msg::PredictedObject> critical_objects;
+    // Find critical objects within the specified distance and lane width and store the whole object instead of just the position
     for (const auto &obj : msg->local_moving_objects.objects)
     {
         double obj_x = obj.kinematics.initial_pose_with_covariance.pose.position.x;
@@ -60,21 +56,49 @@ void brakingSystem::BehaviorPlanner::scenarioCallback(const crp_msgs::msg::Scena
 
         if (obj_x > 0 && obj_x < m_critical_distance_ && std::abs(obj_y) < LANE_WIDTH / 2.0f)
         {
-            // change to push back the whole object
-            critical_objects_x_y.push_back(std::make_pair(obj_x, obj_y));
-            if (closest > obj_x)
-            {
-                closest = obj_x;
-                closest_id = counter;
-            }
-            counter++;
+            critical_objects.push_back(obj);
         }
     }
-    if (!critical_objects_x_y.empty())
+
+    // Find the closest critical object after all have been collected
+    if (!critical_objects.empty())
     {
-        // change to send the correct strategy and targetspace
-        std::pair<double, double> critical_obj = critical_objects_x_y[closest_id];
-        RCLCPP_INFO(this->get_logger(), "Closest object X: %f, Y: %f", critical_obj.first, critical_obj.second);
+        auto closest_obj = std::min_element(
+            critical_objects.begin(),
+            critical_objects.end(),
+            [](const autoware_perception_msgs::msg::PredictedObject &a, const autoware_perception_msgs::msg::PredictedObject &b)
+            {
+                return a.kinematics.initial_pose_with_covariance.pose.position.x <
+                       b.kinematics.initial_pose_with_covariance.pose.position.x;
+            });
+
+        double closest_x = closest_obj->kinematics.initial_pose_with_covariance.pose.position.x;
+        double closest_y = closest_obj->kinematics.initial_pose_with_covariance.pose.position.y;
+
+        RCLCPP_INFO(this->get_logger(), "Closest object X: %f, Y: %f", closest_x, closest_y);
+
+        // Create and populate TargetSpace message with closest object data
+        auto target_space_msg = crp_msgs::msg::TargetSpace();
+        target_space_msg.header.stamp = this->now();
+        target_space_msg.header.frame_id = "base_link";
+
+        // Set target pose from closest object
+        target_space_msg.target_pose = closest_obj->kinematics.initial_pose_with_covariance;
+
+        // Add closest object to relevant_objects
+        target_space_msg.relevant_objects.push_back(*closest_obj);
+
+        // Create Scenario message and add type
+        auto scenario_msg = tier4_planning_msgs::msg::Scenario();
+        scenario_msg.current_scenario = "LONG_EMERGENCY_IMPACT";
+
+        // Publish the closest object data
+        m_pubScenario_->publish(scenario_msg);
+        m_pubTargetSpace_->publish(target_space_msg);
+    } else {
+        auto scenario_msg = tier4_planning_msgs::msg::Scenario();
+        scenario_msg.current_scenario = "NO_ACTION";
+        m_pubScenario_->publish(scenario_msg);
     }
 }
 

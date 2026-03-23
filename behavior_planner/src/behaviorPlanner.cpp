@@ -47,7 +47,7 @@ void brakingSystem::BehaviorPlanner::scenarioCallback(const crp_msgs::msg::Scena
     const float LANE_WIDTH = 3.5f;
     this->get_parameter<double>("critical_distance", m_critical_distance_);
 
-    std::vector<crp_msgs::msg::DynamicObject> critical_objects;
+    std::vector<autoware_perception_msgs::msg::PredictedObject> critical_objects;
     // Find critical objects within the specified distance and lane width and store the whole object instead of just the position
     for (const auto &obj : msg->local_moving_objects.objects)
     {
@@ -66,7 +66,7 @@ void brakingSystem::BehaviorPlanner::scenarioCallback(const crp_msgs::msg::Scena
         auto closest_obj = std::min_element(
             critical_objects.begin(),
             critical_objects.end(),
-            [](const crp_msgs::msg::DynamicObject &a, const crp_msgs::msg::DynamicObject &b)
+            [](const autoware_perception_msgs::msg::PredictedObject &a, const autoware_perception_msgs::msg::PredictedObject &b)
             {
                 return a.kinematics.initial_pose_with_covariance.pose.position.x <
                        b.kinematics.initial_pose_with_covariance.pose.position.x;
@@ -95,6 +95,10 @@ void brakingSystem::BehaviorPlanner::scenarioCallback(const crp_msgs::msg::Scena
         // Publish the closest object data
         m_pubScenario_->publish(scenario_msg);
         m_pubTargetSpace_->publish(target_space_msg);
+    } else {
+        auto scenario_msg = tier4_planning_msgs::msg::Scenario();
+        scenario_msg.current_scenario = "NO_ACTION";
+        m_pubScenario_->publish(scenario_msg);
     }
 }
 

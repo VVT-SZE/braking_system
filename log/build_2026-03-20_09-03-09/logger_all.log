@@ -1,0 +1,259 @@
+[0.301s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--symlink-install']
+[0.301s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=True, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=8, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0x7c37cc565390>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0x7c37cc564970>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0x7c37cc564970>>, mixin_verb=('build',))
+[0.828s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.829s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.829s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.829s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.829s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.829s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.829s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/oliver/ros2_ws/braking_system'
+[0.829s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.829s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.830s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.830s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.830s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.830s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.830s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.830s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.830s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.866s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.866s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.866s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.867s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.867s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.867s] Level 1:colcon.colcon_core.package_identification:_identify(behavior_planner) by extensions ['ignore', 'ignore_ament_install']
+[0.867s] Level 1:colcon.colcon_core.package_identification:_identify(behavior_planner) by extension 'ignore'
+[0.868s] Level 1:colcon.colcon_core.package_identification:_identify(behavior_planner) by extension 'ignore_ament_install'
+[0.868s] Level 1:colcon.colcon_core.package_identification:_identify(behavior_planner) by extensions ['colcon_pkg']
+[0.868s] Level 1:colcon.colcon_core.package_identification:_identify(behavior_planner) by extension 'colcon_pkg'
+[0.868s] Level 1:colcon.colcon_core.package_identification:_identify(behavior_planner) by extensions ['colcon_meta']
+[0.868s] Level 1:colcon.colcon_core.package_identification:_identify(behavior_planner) by extension 'colcon_meta'
+[0.868s] Level 1:colcon.colcon_core.package_identification:_identify(behavior_planner) by extensions ['ros']
+[0.868s] Level 1:colcon.colcon_core.package_identification:_identify(behavior_planner) by extension 'ros'
+[0.876s] DEBUG:colcon.colcon_core.package_identification:Package 'behavior_planner' with type 'ros.ament_cmake' and name 'behavior_planner'
+[0.877s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.877s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.877s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.877s] Level 1:colcon.colcon_core.package_identification:_identify(ctrl_long_emergency) by extensions ['ignore', 'ignore_ament_install']
+[0.877s] Level 1:colcon.colcon_core.package_identification:_identify(ctrl_long_emergency) by extension 'ignore'
+[0.878s] Level 1:colcon.colcon_core.package_identification:_identify(ctrl_long_emergency) by extension 'ignore_ament_install'
+[0.878s] Level 1:colcon.colcon_core.package_identification:_identify(ctrl_long_emergency) by extensions ['colcon_pkg']
+[0.878s] Level 1:colcon.colcon_core.package_identification:_identify(ctrl_long_emergency) by extension 'colcon_pkg'
+[0.878s] Level 1:colcon.colcon_core.package_identification:_identify(ctrl_long_emergency) by extensions ['colcon_meta']
+[0.878s] Level 1:colcon.colcon_core.package_identification:_identify(ctrl_long_emergency) by extension 'colcon_meta'
+[0.878s] Level 1:colcon.colcon_core.package_identification:_identify(ctrl_long_emergency) by extensions ['ros']
+[0.878s] Level 1:colcon.colcon_core.package_identification:_identify(ctrl_long_emergency) by extension 'ros'
+[0.880s] DEBUG:colcon.colcon_core.package_identification:Package 'ctrl_long_emergency' with type 'ros.ament_cmake' and name 'ctrl_long_emergency'
+[0.880s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extensions ['ignore', 'ignore_ament_install']
+[0.880s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'ignore'
+[0.881s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'ignore_ament_install'
+[0.881s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extensions ['colcon_pkg']
+[0.881s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'colcon_pkg'
+[0.881s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extensions ['colcon_meta']
+[0.881s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'colcon_meta'
+[0.881s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extensions ['ros']
+[0.881s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'ros'
+[0.881s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extensions ['cmake', 'python']
+[0.881s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'cmake'
+[0.882s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'python'
+[0.882s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extensions ['python_setup_py']
+[0.882s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'python_setup_py'
+[0.882s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extensions ['ignore', 'ignore_ament_install']
+[0.882s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extension 'ignore'
+[0.882s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extension 'ignore_ament_install'
+[0.882s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extensions ['colcon_pkg']
+[0.882s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extension 'colcon_pkg'
+[0.883s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extensions ['colcon_meta']
+[0.883s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extension 'colcon_meta'
+[0.883s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extensions ['ros']
+[0.883s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extension 'ros'
+[0.883s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extensions ['cmake', 'python']
+[0.883s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extension 'cmake'
+[0.883s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extension 'python'
+[0.883s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extensions ['python_setup_py']
+[0.883s] Level 1:colcon.colcon_core.package_identification:_identify(doc/images) by extension 'python_setup_py'
+[0.883s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extensions ['ignore', 'ignore_ament_install']
+[0.884s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extension 'ignore'
+[0.884s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extension 'ignore_ament_install'
+[0.884s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extensions ['colcon_pkg']
+[0.884s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extension 'colcon_pkg'
+[0.884s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extensions ['colcon_meta']
+[0.884s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extension 'colcon_meta'
+[0.884s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extensions ['ros']
+[0.884s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extension 'ros'
+[0.884s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extensions ['cmake', 'python']
+[0.884s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extension 'cmake'
+[0.885s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extension 'python'
+[0.885s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extensions ['python_setup_py']
+[0.885s] Level 1:colcon.colcon_core.package_identification:_identify(examples) by extension 'python_setup_py'
+[0.885s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extensions ['ignore', 'ignore_ament_install']
+[0.885s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extension 'ignore'
+[0.885s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extension 'ignore_ament_install'
+[0.885s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extensions ['colcon_pkg']
+[0.885s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extension 'colcon_pkg'
+[0.886s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extensions ['colcon_meta']
+[0.886s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extension 'colcon_meta'
+[0.886s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extensions ['ros']
+[0.886s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extension 'ros'
+[0.886s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extensions ['cmake', 'python']
+[0.886s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extension 'cmake'
+[0.886s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extension 'python'
+[0.886s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extensions ['python_setup_py']
+[0.886s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++) by extension 'python_setup_py'
+[0.886s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/basic_concepts) by extensions ['ignore', 'ignore_ament_install']
+[0.887s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/basic_concepts) by extension 'ignore'
+[0.887s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/basic_concepts) by extension 'ignore_ament_install'
+[0.887s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/basic_concepts) by extensions ['colcon_pkg']
+[0.887s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/basic_concepts) by extension 'colcon_pkg'
+[0.887s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/basic_concepts) by extensions ['colcon_meta']
+[0.887s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/basic_concepts) by extension 'colcon_meta'
+[0.887s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/basic_concepts) by extensions ['ros']
+[0.887s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/basic_concepts) by extension 'ros'
+[0.889s] DEBUG:colcon.colcon_core.package_identification:Package 'examples/c++/basic_concepts' with type 'ros.ament_cmake' and name 'basic_concepts'
+[0.889s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/velocity_estimator) by extensions ['ignore', 'ignore_ament_install']
+[0.890s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/velocity_estimator) by extension 'ignore'
+[0.890s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/velocity_estimator) by extension 'ignore_ament_install'
+[0.890s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/velocity_estimator) by extensions ['colcon_pkg']
+[0.890s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/velocity_estimator) by extension 'colcon_pkg'
+[0.890s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/velocity_estimator) by extensions ['colcon_meta']
+[0.890s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/velocity_estimator) by extension 'colcon_meta'
+[0.890s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/velocity_estimator) by extensions ['ros']
+[0.890s] Level 1:colcon.colcon_core.package_identification:_identify(examples/c++/velocity_estimator) by extension 'ros'
+[0.892s] DEBUG:colcon.colcon_core.package_identification:Package 'examples/c++/velocity_estimator' with type 'ros.ament_cmake' and name 'velocity_estimator'
+[0.892s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.892s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.892s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.892s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.892s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.893s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.893s] Level 1:colcon.colcon_core.package_identification:_identify(plan_long_emergency) by extensions ['ignore', 'ignore_ament_install']
+[0.893s] Level 1:colcon.colcon_core.package_identification:_identify(plan_long_emergency) by extension 'ignore'
+[0.893s] Level 1:colcon.colcon_core.package_identification:_identify(plan_long_emergency) by extension 'ignore_ament_install'
+[0.893s] Level 1:colcon.colcon_core.package_identification:_identify(plan_long_emergency) by extensions ['colcon_pkg']
+[0.893s] Level 1:colcon.colcon_core.package_identification:_identify(plan_long_emergency) by extension 'colcon_pkg'
+[0.893s] Level 1:colcon.colcon_core.package_identification:_identify(plan_long_emergency) by extensions ['colcon_meta']
+[0.893s] Level 1:colcon.colcon_core.package_identification:_identify(plan_long_emergency) by extension 'colcon_meta'
+[0.893s] Level 1:colcon.colcon_core.package_identification:_identify(plan_long_emergency) by extensions ['ros']
+[0.893s] Level 1:colcon.colcon_core.package_identification:_identify(plan_long_emergency) by extension 'ros'
+[0.895s] DEBUG:colcon.colcon_core.package_identification:Package 'plan_long_emergency' with type 'ros.ament_cmake' and name 'plan_long_emergency'
+[0.895s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.895s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.895s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.896s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.896s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.970s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.970s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.993s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 282 installed packages in /opt/ros/humble
+[0.998s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[1.099s] Level 5:colcon.colcon_core.verb:set package 'basic_concepts' build argument 'cmake_args' from command line to 'None'
+[1.100s] Level 5:colcon.colcon_core.verb:set package 'basic_concepts' build argument 'cmake_target' from command line to 'None'
+[1.100s] Level 5:colcon.colcon_core.verb:set package 'basic_concepts' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[1.100s] Level 5:colcon.colcon_core.verb:set package 'basic_concepts' build argument 'cmake_clean_cache' from command line to 'False'
+[1.100s] Level 5:colcon.colcon_core.verb:set package 'basic_concepts' build argument 'cmake_clean_first' from command line to 'False'
+[1.100s] Level 5:colcon.colcon_core.verb:set package 'basic_concepts' build argument 'cmake_force_configure' from command line to 'False'
+[1.100s] Level 5:colcon.colcon_core.verb:set package 'basic_concepts' build argument 'ament_cmake_args' from command line to 'None'
+[1.100s] Level 5:colcon.colcon_core.verb:set package 'basic_concepts' build argument 'catkin_cmake_args' from command line to 'None'
+[1.100s] Level 5:colcon.colcon_core.verb:set package 'basic_concepts' build argument 'catkin_skip_building_tests' from command line to 'False'
+[1.100s] DEBUG:colcon.colcon_core.verb:Building package 'basic_concepts' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/oliver/ros2_ws/braking_system/build/basic_concepts', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/oliver/ros2_ws/braking_system/install/basic_concepts', 'merge_install': False, 'path': '/home/oliver/ros2_ws/braking_system/examples/c++/basic_concepts', 'symlink_install': True, 'test_result_base': None}
+[1.102s] Level 5:colcon.colcon_core.verb:set package 'behavior_planner' build argument 'cmake_args' from command line to 'None'
+[1.102s] Level 5:colcon.colcon_core.verb:set package 'behavior_planner' build argument 'cmake_target' from command line to 'None'
+[1.102s] Level 5:colcon.colcon_core.verb:set package 'behavior_planner' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[1.102s] Level 5:colcon.colcon_core.verb:set package 'behavior_planner' build argument 'cmake_clean_cache' from command line to 'False'
+[1.102s] Level 5:colcon.colcon_core.verb:set package 'behavior_planner' build argument 'cmake_clean_first' from command line to 'False'
+[1.102s] Level 5:colcon.colcon_core.verb:set package 'behavior_planner' build argument 'cmake_force_configure' from command line to 'False'
+[1.102s] Level 5:colcon.colcon_core.verb:set package 'behavior_planner' build argument 'ament_cmake_args' from command line to 'None'
+[1.102s] Level 5:colcon.colcon_core.verb:set package 'behavior_planner' build argument 'catkin_cmake_args' from command line to 'None'
+[1.102s] Level 5:colcon.colcon_core.verb:set package 'behavior_planner' build argument 'catkin_skip_building_tests' from command line to 'False'
+[1.102s] DEBUG:colcon.colcon_core.verb:Building package 'behavior_planner' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/oliver/ros2_ws/braking_system/build/behavior_planner', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/oliver/ros2_ws/braking_system/install/behavior_planner', 'merge_install': False, 'path': '/home/oliver/ros2_ws/braking_system/behavior_planner', 'symlink_install': True, 'test_result_base': None}
+[1.103s] Level 5:colcon.colcon_core.verb:set package 'ctrl_long_emergency' build argument 'cmake_args' from command line to 'None'
+[1.103s] Level 5:colcon.colcon_core.verb:set package 'ctrl_long_emergency' build argument 'cmake_target' from command line to 'None'
+[1.103s] Level 5:colcon.colcon_core.verb:set package 'ctrl_long_emergency' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[1.103s] Level 5:colcon.colcon_core.verb:set package 'ctrl_long_emergency' build argument 'cmake_clean_cache' from command line to 'False'
+[1.103s] Level 5:colcon.colcon_core.verb:set package 'ctrl_long_emergency' build argument 'cmake_clean_first' from command line to 'False'
+[1.103s] Level 5:colcon.colcon_core.verb:set package 'ctrl_long_emergency' build argument 'cmake_force_configure' from command line to 'False'
+[1.103s] Level 5:colcon.colcon_core.verb:set package 'ctrl_long_emergency' build argument 'ament_cmake_args' from command line to 'None'
+[1.103s] Level 5:colcon.colcon_core.verb:set package 'ctrl_long_emergency' build argument 'catkin_cmake_args' from command line to 'None'
+[1.103s] Level 5:colcon.colcon_core.verb:set package 'ctrl_long_emergency' build argument 'catkin_skip_building_tests' from command line to 'False'
+[1.103s] DEBUG:colcon.colcon_core.verb:Building package 'ctrl_long_emergency' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/oliver/ros2_ws/braking_system/build/ctrl_long_emergency', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/oliver/ros2_ws/braking_system/install/ctrl_long_emergency', 'merge_install': False, 'path': '/home/oliver/ros2_ws/braking_system/ctrl_long_emergency', 'symlink_install': True, 'test_result_base': None}
+[1.104s] Level 5:colcon.colcon_core.verb:set package 'plan_long_emergency' build argument 'cmake_args' from command line to 'None'
+[1.104s] Level 5:colcon.colcon_core.verb:set package 'plan_long_emergency' build argument 'cmake_target' from command line to 'None'
+[1.104s] Level 5:colcon.colcon_core.verb:set package 'plan_long_emergency' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[1.104s] Level 5:colcon.colcon_core.verb:set package 'plan_long_emergency' build argument 'cmake_clean_cache' from command line to 'False'
+[1.104s] Level 5:colcon.colcon_core.verb:set package 'plan_long_emergency' build argument 'cmake_clean_first' from command line to 'False'
+[1.104s] Level 5:colcon.colcon_core.verb:set package 'plan_long_emergency' build argument 'cmake_force_configure' from command line to 'False'
+[1.104s] Level 5:colcon.colcon_core.verb:set package 'plan_long_emergency' build argument 'ament_cmake_args' from command line to 'None'
+[1.104s] Level 5:colcon.colcon_core.verb:set package 'plan_long_emergency' build argument 'catkin_cmake_args' from command line to 'None'
+[1.105s] Level 5:colcon.colcon_core.verb:set package 'plan_long_emergency' build argument 'catkin_skip_building_tests' from command line to 'False'
+[1.105s] DEBUG:colcon.colcon_core.verb:Building package 'plan_long_emergency' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/oliver/ros2_ws/braking_system/build/plan_long_emergency', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/oliver/ros2_ws/braking_system/install/plan_long_emergency', 'merge_install': False, 'path': '/home/oliver/ros2_ws/braking_system/plan_long_emergency', 'symlink_install': True, 'test_result_base': None}
+[1.105s] Level 5:colcon.colcon_core.verb:set package 'velocity_estimator' build argument 'cmake_args' from command line to 'None'
+[1.105s] Level 5:colcon.colcon_core.verb:set package 'velocity_estimator' build argument 'cmake_target' from command line to 'None'
+[1.105s] Level 5:colcon.colcon_core.verb:set package 'velocity_estimator' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[1.105s] Level 5:colcon.colcon_core.verb:set package 'velocity_estimator' build argument 'cmake_clean_cache' from command line to 'False'
+[1.106s] Level 5:colcon.colcon_core.verb:set package 'velocity_estimator' build argument 'cmake_clean_first' from command line to 'False'
+[1.106s] Level 5:colcon.colcon_core.verb:set package 'velocity_estimator' build argument 'cmake_force_configure' from command line to 'False'
+[1.106s] Level 5:colcon.colcon_core.verb:set package 'velocity_estimator' build argument 'ament_cmake_args' from command line to 'None'
+[1.106s] Level 5:colcon.colcon_core.verb:set package 'velocity_estimator' build argument 'catkin_cmake_args' from command line to 'None'
+[1.106s] Level 5:colcon.colcon_core.verb:set package 'velocity_estimator' build argument 'catkin_skip_building_tests' from command line to 'False'
+[1.106s] DEBUG:colcon.colcon_core.verb:Building package 'velocity_estimator' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/oliver/ros2_ws/braking_system/build/velocity_estimator', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/oliver/ros2_ws/braking_system/install/velocity_estimator', 'merge_install': False, 'path': '/home/oliver/ros2_ws/braking_system/examples/c++/velocity_estimator', 'symlink_install': True, 'test_result_base': None}
+[1.106s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[1.108s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[1.109s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/oliver/ros2_ws/braking_system/examples/c++/basic_concepts' with build type 'ament_cmake'
+[1.109s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/oliver/ros2_ws/braking_system/examples/c++/basic_concepts'
+[1.125s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[1.126s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.126s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.137s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/oliver/ros2_ws/braking_system/behavior_planner' with build type 'ament_cmake'
+[1.138s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/oliver/ros2_ws/braking_system/behavior_planner'
+[1.139s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.139s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.148s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/oliver/ros2_ws/braking_system/ctrl_long_emergency' with build type 'ament_cmake'
+[1.149s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/oliver/ros2_ws/braking_system/ctrl_long_emergency'
+[1.150s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.150s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.161s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/oliver/ros2_ws/braking_system/plan_long_emergency' with build type 'ament_cmake'
+[1.162s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/oliver/ros2_ws/braking_system/plan_long_emergency'
+[1.162s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.162s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.171s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/oliver/ros2_ws/braking_system/examples/c++/velocity_estimator' with build type 'ament_cmake'
+[1.172s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/oliver/ros2_ws/braking_system/examples/c++/velocity_estimator'
+[1.172s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.173s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.193s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/oliver/ros2_ws/braking_system/build/basic_concepts': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/oliver/ros2_ws/braking_system/build/basic_concepts -- -j8 -l8
+[1.200s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/oliver/ros2_ws/braking_system/build/behavior_planner': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/oliver/ros2_ws/braking_system/behavior_planner -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/oliver/ros2_ws/braking_system/install/behavior_planner
+[1.209s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/oliver/ros2_ws/braking_system/build/ctrl_long_emergency': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/oliver/ros2_ws/braking_system/ctrl_long_emergency -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/oliver/ros2_ws/braking_system/install/ctrl_long_emergency
+[1.219s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/oliver/ros2_ws/braking_system/build/plan_long_emergency': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/oliver/ros2_ws/braking_system/plan_long_emergency -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/oliver/ros2_ws/braking_system/install/plan_long_emergency
+[1.248s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/oliver/ros2_ws/braking_system/build/velocity_estimator': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/oliver/ros2_ws/braking_system/build/velocity_estimator -- -j8 -l8
+[2.844s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/oliver/ros2_ws/braking_system/build/behavior_planner' returned '1': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/oliver/ros2_ws/braking_system/behavior_planner -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/oliver/ros2_ws/braking_system/install/behavior_planner
+[2.855s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/oliver/ros2_ws/braking_system/build/ctrl_long_emergency' returned '1': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/oliver/ros2_ws/braking_system/ctrl_long_emergency -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/oliver/ros2_ws/braking_system/install/ctrl_long_emergency
+[2.896s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/oliver/ros2_ws/braking_system/build/plan_long_emergency' returned '1': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/oliver/ros2_ws/braking_system/plan_long_emergency -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/oliver/ros2_ws/braking_system/install/plan_long_emergency
+[2.900s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(behavior_planner)
+[2.930s] Level 1:colcon.colcon_core.environment:checking '/home/oliver/ros2_ws/braking_system/install/behavior_planner' for CMake module files
+[2.932s] Level 1:colcon.colcon_core.environment:checking '/home/oliver/ros2_ws/braking_system/install/behavior_planner' for CMake config files
+[2.935s] Level 1:colcon.colcon_core.environment:checking '/home/oliver/ros2_ws/braking_system/install/behavior_planner/bin'
+[2.935s] Level 1:colcon.colcon_core.environment:checking '/home/oliver/ros2_ws/braking_system/install/behavior_planner/lib/pkgconfig/behavior_planner.pc'
+[2.936s] Level 1:colcon.colcon_core.environment:checking '/home/oliver/ros2_ws/braking_system/install/behavior_planner/lib/python3.10/site-packages'
+[2.938s] Level 1:colcon.colcon_core.environment:checking '/home/oliver/ros2_ws/braking_system/install/behavior_planner/bin'
+[2.938s] INFO:colcon.colcon_core.shell:Creating package script '/home/oliver/ros2_ws/braking_system/install/behavior_planner/share/behavior_planner/package.ps1'
+[2.943s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/oliver/ros2_ws/braking_system/install/behavior_planner/share/behavior_planner/package.dsv'
+[2.947s] INFO:colcon.colcon_core.shell:Creating package script '/home/oliver/ros2_ws/braking_system/install/behavior_planner/share/behavior_planner/package.sh'
+[2.951s] INFO:colcon.colcon_core.shell:Creating package script '/home/oliver/ros2_ws/braking_system/install/behavior_planner/share/behavior_planner/package.bash'
+[2.961s] INFO:colcon.colcon_core.shell:Creating package script '/home/oliver/ros2_ws/braking_system/install/behavior_planner/share/behavior_planner/package.zsh'
+[2.965s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/oliver/ros2_ws/braking_system/install/behavior_planner/share/colcon-core/packages/behavior_planner)
+[23.849s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[23.850s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[23.850s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '1'
+[23.850s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[23.867s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[23.867s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[23.867s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[23.903s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[23.904s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/oliver/ros2_ws/braking_system/install/local_setup.ps1'
+[23.906s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/oliver/ros2_ws/braking_system/install/_local_setup_util_ps1.py'
+[23.909s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/oliver/ros2_ws/braking_system/install/setup.ps1'
+[23.911s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/oliver/ros2_ws/braking_system/install/local_setup.sh'
+[23.913s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/oliver/ros2_ws/braking_system/install/_local_setup_util_sh.py'
+[23.914s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/oliver/ros2_ws/braking_system/install/setup.sh'
+[23.917s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/oliver/ros2_ws/braking_system/install/local_setup.bash'
+[23.918s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/oliver/ros2_ws/braking_system/install/setup.bash'
+[23.920s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/oliver/ros2_ws/braking_system/install/local_setup.zsh'
+[23.921s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/oliver/ros2_ws/braking_system/install/setup.zsh'

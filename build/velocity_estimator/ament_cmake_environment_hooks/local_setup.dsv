@@ -1,0 +1,2 @@
+source;share/velocity_estimator/environment/ament_prefix_path.sh
+source;share/velocity_estimator/environment/path.sh

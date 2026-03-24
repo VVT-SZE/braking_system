@@ -1,0 +1,44 @@
+[0.083s] Invoking command in '/home/oliver/ros2_ws/braking_system/build/plan_long_emergency': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/oliver/ros2_ws/braking_system/plan_long_emergency -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/oliver/ros2_ws/braking_system/install/plan_long_emergency
+[0.125s] -- Found ament_cmake: 1.3.13 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.665s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.686s] -- Found rclcpp: 16.0.18 (/opt/ros/humble/share/rclcpp/cmake)
+[0.774s] -- Found rosidl_generator_c: 3.1.8 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.784s] -- Found rosidl_adapter: 3.1.8 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.804s] -- Found rosidl_generator_cpp: 3.1.8 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.850s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.892s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.003s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[1.013s] -- Found rmw_fastrtps_cpp: 6.2.10 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+[1.404s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[1.557s] -- Found crp_msgs: 0.0.0 (/home/oliver/ros2_ws/install/crp_msgs/share/crp_msgs/cmake)
+[2.377s] -- Configuring done
+[2.419s] -- Generating done
+[2.431s] -- Build files have been written to: /home/oliver/ros2_ws/braking_system/build/plan_long_emergency
+[2.454s] Invoked command in '/home/oliver/ros2_ws/braking_system/build/plan_long_emergency' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/oliver/ros2_ws/braking_system/plan_long_emergency -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/oliver/ros2_ws/braking_system/install/plan_long_emergency
+[2.458s] Invoking command in '/home/oliver/ros2_ws/braking_system/build/plan_long_emergency': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/oliver/ros2_ws/braking_system/build/plan_long_emergency -- -j8 -l8
+[2.638s] [ 50%] [32mBuilding CXX object CMakeFiles/plan_long_emergency.dir/src/motionHandler.cpp.o[0m
+[41.755s] [100%] [32m[1mLinking CXX executable plan_long_emergency[0m
+[43.963s] [100%] Built target plan_long_emergency
+[44.008s] Invoked command in '/home/oliver/ros2_ws/braking_system/build/plan_long_emergency' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/oliver/ros2_ws/braking_system/build/plan_long_emergency -- -j8 -l8
+[44.011s] Invoking command in '/home/oliver/ros2_ws/braking_system/build/plan_long_emergency': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/oliver/ros2_ws/braking_system/build/plan_long_emergency
+[44.037s] -- Install configuration: ""
+[44.037s] -- Execute custom install script
+[44.037s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/lib/plan_long_emergency/plan_long_emergency
+[44.064s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/config/config.yaml
+[44.098s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/launch/motion_planning.launch.py
+[44.128s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/ament_index/resource_index/package_run_dependencies/plan_long_emergency
+[44.149s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/ament_index/resource_index/parent_prefix_path/plan_long_emergency
+[44.173s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/environment/ament_prefix_path.sh
+[44.200s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/environment/ament_prefix_path.dsv
+[44.225s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/environment/path.sh
+[44.246s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/environment/path.dsv
+[44.267s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/local_setup.bash
+[44.296s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/local_setup.sh
+[44.325s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/local_setup.zsh
+[44.344s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/local_setup.dsv
+[44.363s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/package.dsv
+[44.388s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/ament_index/resource_index/packages/plan_long_emergency
+[44.415s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/cmake/plan_long_emergencyConfig.cmake
+[44.439s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/cmake/plan_long_emergencyConfig-version.cmake
+[44.458s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/plan_long_emergency/share/plan_long_emergency/package.xml
+[44.488s] Invoked command in '/home/oliver/ros2_ws/braking_system/build/plan_long_emergency' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/oliver/ros2_ws/braking_system/build/plan_long_emergency

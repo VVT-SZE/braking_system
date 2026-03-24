@@ -3,7 +3,7 @@
 brakingSystem::CtrlLongEmergency ::CtrlLongEmergency () : Node("ctrl_long_emergency")
 {
     this->declare_parameter<std::string>("input_topic_ego", "ego");
-    this->declare_parameter<std::string>("input_topic_trajectory", "trajectory");
+    this->declare_parameter<std::string>("input_topic_trajectory", "plan/longEmergency/trajectory");
     this->declare_parameter<std::string>("output_topic_control", "control/command/control_cmd");
     this->declare_parameter<bool>("debug_enabled", false);
 
@@ -29,6 +29,9 @@ brakingSystem::CtrlLongEmergency ::CtrlLongEmergency () : Node("ctrl_long_emerge
         outputTopicControl,
         1);
 
+    
+    m_control_msg.longitudinal.velocity = 0.0;
+    m_control_msg.longitudinal.acceleration = 0.0;
     m_timer_ = this->create_wall_timer(std::chrono::milliseconds(20), std::bind(&brakingSystem::CtrlLongEmergency::run, this));  
 
     RCLCPP_INFO(this->get_logger(), "ctrl_long_emergency node has been started");
@@ -36,20 +39,40 @@ brakingSystem::CtrlLongEmergency ::CtrlLongEmergency () : Node("ctrl_long_emerge
 
 void brakingSystem::CtrlLongEmergency::egoCallback(const crp_msgs::msg::Ego::SharedPtr msg)
 {
-    
+    (void)msg;    
 }
 
 void brakingSystem::CtrlLongEmergency::trajectoryCallback(const autoware_planning_msgs::msg::Trajectory::SharedPtr msg)
 {
-    if (msg->points.size() > 0)
+if (msg->points.empty()) return;
+
+    bool stop_detected = false;
+
+    for (const auto & point : msg->points)
     {
-        double first_point = msg->points[0];
-        m_control_msg.longitudinal.velocity = first_point.longitudinal_velocity_mps;
+        if (point.longitudinal_velocity_mps <= 0.001)
+        {
+            stop_detected = true;
+            break;
+        }
+    }
+
+    if (stop_detected)
+    {
+        m_control_msg.longitudinal.velocity = 0.0;
+        m_control_msg.longitudinal.acceleration = -5.0;
+        RCLCPP_WARN(this->get_logger(), "EMERGENCY STOP");
+    }
+    else
+    {
+        m_control_msg.longitudinal.velocity = msg->points[0].longitudinal_velocity_mps;
+        m_control_msg.longitudinal.acceleration = 0.0; 
     }
 }
 
 void brakingSystem::CtrlLongEmergency::run()
 {
+    m_control_msg.stamp = this->now();
     m_pubControl_->publish(m_control_msg);
 
     RCLCPP_INFO(this->get_logger(), "Published control command");

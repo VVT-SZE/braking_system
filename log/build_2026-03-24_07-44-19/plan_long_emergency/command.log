@@ -1,0 +1,4 @@
+Invoking command in '/home/oliver/ros2_ws/braking_system/build/plan_long_emergency': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/oliver/ros2_ws/braking_system/build/plan_long_emergency -- -j8 -l8
+Invoked command in '/home/oliver/ros2_ws/braking_system/build/plan_long_emergency' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/oliver/ros2_ws/braking_system/build/plan_long_emergency -- -j8 -l8
+Invoking command in '/home/oliver/ros2_ws/braking_system/build/plan_long_emergency': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/oliver/ros2_ws/braking_system/build/plan_long_emergency
+Invoked command in '/home/oliver/ros2_ws/braking_system/build/plan_long_emergency' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/oliver/ros2_ws/braking_system/build/plan_long_emergency

@@ -1,0 +1,27 @@
+[0.100s] Invoking command in '/home/oliver/ros2_ws/braking_system/build/velocity_estimator': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/oliver/ros2_ws/braking_system/build/velocity_estimator -- -j8 -l8
+[0.311s] [ 50%] Built target pose_publisher
+[0.337s] [100%] Built target velocity_estimator
+[0.394s] Invoked command in '/home/oliver/ros2_ws/braking_system/build/velocity_estimator' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/oliver/ros2_ws/braking_system/build/velocity_estimator -- -j8 -l8
+[0.399s] Invoking command in '/home/oliver/ros2_ws/braking_system/build/velocity_estimator': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/oliver/ros2_ws/braking_system/build/velocity_estimator
+[0.420s] -- Install configuration: ""
+[0.420s] -- Execute custom install script
+[0.420s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/lib/velocity_estimator/pose_publisher
+[0.421s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/lib/velocity_estimator/velocity_estimator
+[0.421s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/config/params.yaml
+[0.421s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/launch/velocityEstimatorDemo.launch.py
+[0.421s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/ament_index/resource_index/package_run_dependencies/velocity_estimator
+[0.428s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/ament_index/resource_index/parent_prefix_path/velocity_estimator
+[0.429s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/environment/ament_prefix_path.sh
+[0.429s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/environment/ament_prefix_path.dsv
+[0.435s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/environment/path.sh
+[0.435s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/environment/path.dsv
+[0.435s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/local_setup.bash
+[0.436s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/local_setup.sh
+[0.436s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/local_setup.zsh
+[0.436s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/local_setup.dsv
+[0.436s] -- Symlinking: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/package.dsv
+[0.451s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/ament_index/resource_index/packages/velocity_estimator
+[0.451s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/cmake/velocity_estimatorConfig.cmake
+[0.451s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/cmake/velocity_estimatorConfig-version.cmake
+[0.451s] -- Up-to-date symlink: /home/oliver/ros2_ws/braking_system/install/velocity_estimator/share/velocity_estimator/package.xml
+[0.524s] Invoked command in '/home/oliver/ros2_ws/braking_system/build/velocity_estimator' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/oliver/ros2_ws/braking_system/build/velocity_estimator

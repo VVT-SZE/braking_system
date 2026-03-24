@@ -1,0 +1,1 @@
+/home/oliver/ros2_ws/braking_system/build/plan_long_emergency/ament_cmake_environment_hooks/local_setup.sh

@@ -1,0 +1,4 @@
+source;share/ctrl_long_emergency/local_setup.bash
+source;share/ctrl_long_emergency/local_setup.dsv
+source;share/ctrl_long_emergency/local_setup.sh
+source;share/ctrl_long_emergency/local_setup.zsh

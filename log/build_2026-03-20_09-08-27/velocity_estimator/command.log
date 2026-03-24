@@ -1,0 +1,4 @@
+Invoking command in '/home/oliver/ros2_ws/braking_system/build/velocity_estimator': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/oliver/ros2_ws/braking_system/build/velocity_estimator -- -j8 -l8
+Invoked command in '/home/oliver/ros2_ws/braking_system/build/velocity_estimator' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/oliver/ros2_ws/braking_system/build/velocity_estimator -- -j8 -l8
+Invoking command in '/home/oliver/ros2_ws/braking_system/build/velocity_estimator': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/oliver/ros2_ws/braking_system/build/velocity_estimator
+Invoked command in '/home/oliver/ros2_ws/braking_system/build/velocity_estimator' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/oliver/ros2_ws/braking_system/build/velocity_estimator

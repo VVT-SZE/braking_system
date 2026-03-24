@@ -1,0 +1,7 @@
+[0.076s] Invoking command in '/home/oliver/ros2_ws/braking_system/build/velocity_estimator': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/oliver/ros2_ws/braking_system/build/velocity_estimator -- -j8 -l8
+[0.259s] [ 25%] [32mBuilding CXX object CMakeFiles/pose_publisher.dir/src/posePublisher.cpp.o[0m
+[0.307s] [ 50%] [32mBuilding CXX object CMakeFiles/velocity_estimator.dir/src/velocityEstimator.cpp.o[0m
+[13.147s] [ 75%] [32m[1mLinking CXX executable pose_publisher[0m
+[13.646s] [ 75%] Built target pose_publisher
+[21.552s] [100%] [32m[1mLinking CXX executable velocity_estimator[0m
+[22.635s] [100%] Built target velocity_estimator

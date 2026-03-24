@@ -1,7 +1,0 @@
-[0.083s] Invoking command in '/home/oliver/ros2_ws/braking_system/build/basic_concepts': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/oliver/ros2_ws/braking_system/build/basic_concepts -- -j8 -l8
-[0.277s] [ 25%] [32mBuilding CXX object CMakeFiles/publisher_demo.dir/src/publisherDemo.cpp.o[0m
-[0.306s] [ 50%] [32mBuilding CXX object CMakeFiles/subscriber_demo.dir/src/subscriberDemo.cpp.o[0m
-[13.413s] [ 75%] [32m[1mLinking CXX executable publisher_demo[0m
-[13.892s] [ 75%] Built target publisher_demo
-[20.900s] [100%] [32m[1mLinking CXX executable subscriber_demo[0m
-[21.801s] [100%] Built target subscriber_demo

@@ -1,6 +1,0 @@
-[ 25%] [32mBuilding CXX object CMakeFiles/pose_publisher.dir/src/posePublisher.cpp.o[0m
-[ 50%] [32mBuilding CXX object CMakeFiles/velocity_estimator.dir/src/velocityEstimator.cpp.o[0m
-[ 75%] [32m[1mLinking CXX executable pose_publisher[0m
-[ 75%] Built target pose_publisher
-[100%] [32m[1mLinking CXX executable velocity_estimator[0m
-[100%] Built target velocity_estimator

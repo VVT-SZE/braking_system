@@ -1,7 +1,0 @@
-[0.000000] (-) TimerEvent: {}
-[0.001034] (-) JobUnselected: {'identifier': 'basic_concepts'}
-[0.001174] (-) JobUnselected: {'identifier': 'behavior_planner'}
-[0.001229] (-) JobUnselected: {'identifier': 'ctrl_long_emergency'}
-[0.001281] (-) JobUnselected: {'identifier': 'plan_long_emergency'}
-[0.001312] (-) JobUnselected: {'identifier': 'velocity_estimator'}
-[0.001633] (-) EventReactorShutdown: {}

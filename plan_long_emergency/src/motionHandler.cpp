@@ -6,12 +6,14 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
     this->declare_parameter<std::string>("input_topic_scenario", "plan/strategy");
     this->declare_parameter<std::string>("input_topic_target_space", "plan/target_space");
     this->declare_parameter<std::string>("output_topic_trajectory", "plan/longEmergency/trajectory");
+    this->declare_parameter<double>("safety_distance", 4.0);
 
     std::string inputTopicEgo, inputTopicScenario, inputTopicTargetSpace, outputTopicTrajectory;
     this->get_parameter("input_topic_ego", inputTopicEgo);
     this->get_parameter("input_topic_scenario", inputTopicScenario);
     this->get_parameter("input_topic_target_space", inputTopicTargetSpace);
     this->get_parameter("output_topic_trajectory", outputTopicTrajectory);
+    this->get_parameter("safety_distance", safety_distance)
 
     m_subScenario_ = this->create_subscription<tier4_planning_msgs::msg::Scenario>(
         inputTopicScenario, 1, std::bind(&MotionHandler::scenarioCallback, this, std::placeholders::_1));
@@ -46,48 +48,81 @@ void brakingSystem::MotionHandler::egoCallback(const crp_msgs::msg::Ego::SharedP
 
 void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::TargetSpace::SharedPtr msg)
 {
-    autoware_planning_msgs::msg::Trajectory trajectory;
-    trajectory.header = msg->header;
-
+    // safety check
+    if (msg->relevant_objects.empty())
+    {
+        RCLCPP_INFO(this->get_logger(), "No relevant objects");
+        return;
+    }
+    
+    // deciding if there is a critical object or is an emergeny
     bool is_emergency = (m_current_scenario_ == "LONG_EMERGENCY_AVOID" || 
                          m_current_scenario_ == "LONG_EMERGENCY_IMPACT");
 
-    if (is_emergency && !msg->relevant_objects.empty()) {
+    if (is_emergency) {
         RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
             "Obstacle detected! Object count: %zu", msg->relevant_objects.size());
     }
 
-    double min_distance = 1.0; 
-    double last_x =  0.0;
-    double last_y = 0.0;
-    bool first_point = true;
+    // getting x and y from behaviour planner
+    const auto &obj = msg->relevant_objects[0];
+    double obj_x = msg->target_pose.pose.position.x;
+    double obj_y = msg->target_pose.pose.position.y;
 
-    for (const auto & path_point : msg->path.path.points)
+    RCLCPP_INFO(this->get_logger(), "Object at X: %f, Y: %f", obj_x, obj_y);
+
+    // making new trajectory with vector
+
+    struct trajectoryPoint
     {
-        double x = path_point.point.pose.position.x;
-        double y = path_point.point.pose.position.y;
-        double dist = std::hypot(x - last_x, y - last_y);
+        double x; 
+        double y;
+        double v;
+    };
 
-        if (first_point || dist >= min_distance)
-        {
-             autoware_planning_msgs::msg::TrajectoryPoint trajectory_point;
-             trajectory_point.pose = path_point.point.pose;
+    std::vector<trajectoryPoint> trajectory;
+    
+    double step = 1.0; // point at every meter
+    double stop_x = obj_x - safety_distance; // dont stop at obj stop at the safety_dist
 
-             if (is_emergency) {
-                trajectory_point.longitudinal_velocity_mps = 0.0;
-             } else {
-                trajectory_point.longitudinal_velocity_mps = path_point.point.longitudinal_velocity_mps;
-             }
-                
-             trajectory.points.push_back(trajectory_point);
-
-             last_x = x;
-             last_y = y;
-             first_point = false;
-        }   
+    if (stop_x < 0.0)
+    {
+        stop_x = 0.0;
     }
 
-    m_pubTrajectory_->publish(trajectory);
+    for (double x=0.0; x <= stop_x; x+=step)
+    {
+        trajectory.push_back({
+            x,
+            0.0,    
+            0.0 // break
+        });
+    }
+
+    if (trajectory.empty())
+    {
+        trajectory.push_back({0.0, 0.0, 0.0});
+    }
+
+    // convert to ros message
+    autoware_planning_msgs::msg::Trajectory trajectory_msg;
+    trajectory_msg.header = msg->header;
+
+    for (const auto &p : trajectory)
+    {
+        autoware_planning_msgs::msg::TrajectoryPoint tp;
+
+        tp.pose.position.x = p.x;
+        tp.pose.position.y = p.y;
+        tp.longitudinal_velocity_mps = p.v;
+
+        trajectory_msg.points.push_back(tp);
+    }
+
+    // publish trajectory
+    m_pubTrajectory_->publish(trajectory_msg);
+
+    RCLCPP_INFO(this->get_logger(), "Published emergency braking trajectory");
 }
 
 int main(int argc, char * argv[])

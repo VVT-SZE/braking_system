@@ -20,6 +20,8 @@ namespace brakingSystem
         void egoCallback(const crp_msgs::msg::Ego::SharedPtr msg);
         void targetSpaceCallback(const crp_msgs::msg::TargetSpace::SharedPtr msg);
 
+        brakingSystem::TrajectoryCalculation* trajectoryCalculator;
+
         rclcpp::Subscription<crp_msgs::msg::Ego>::SharedPtr m_subEgo_;
         rclcpp::Subscription<crp_msgs::msg::TargetSpace>::SharedPtr m_subTargetSpace_;
         rclcpp::Subscription<tier4_planning_msgs::msg::Scenario>::SharedPtr m_subScenario_;

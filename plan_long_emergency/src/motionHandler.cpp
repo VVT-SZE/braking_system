@@ -1,4 +1,5 @@
 #include <plan_long_emergency/motionHandler.hpp>
+#include <../../utils/include/trajectoryCalculation.hpp>
 
 brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
 {
@@ -28,6 +29,9 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
         outputTopicTrajectory, 1);
 
     m_current_scenario_ = "NO_ACTION";
+
+    trajectoryCalculator = new brakingSystem::TrajectoryCalculation();
+    
 
     RCLCPP_INFO(this->get_logger(), "Plan_long_emergency node has been started.");
 }
@@ -73,48 +77,20 @@ void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::Targ
 
     // making new trajectory with vector
 
-    struct trajectoryPoint
-    {
-        double x; 
-        double y;
-        double v;
-    };
-
-    std::vector<trajectoryPoint> trajectory;
     
-    double step = 1.0; // point at every meter
-    double stop_x = obj_x - safety_distance; // dont stop at obj stop at the safety_dist
-
-    if (stop_x < 0.0)
-    {
-        stop_x = 0.0;
-    }
-
-    for (double x=0.0; x <= stop_x; x+=step)
-    {
-        trajectory.push_back({
-            x,
-            0.0,    
-            0.0 // break
-        });
-    }
-
-    if (trajectory.empty())
-    {
-        trajectory.push_back({0.0, 0.0, 0.0});
-    }
+    const std::vector<std::vector<double>> trajectory = trajectoryCalculator->calcTrajectory(obj_x, 0.0, 0.0, 0.0, 0.0);
 
     // convert to ros message
     autoware_planning_msgs::msg::Trajectory trajectory_msg;
     trajectory_msg.header = msg->header;
 
-    for (const auto &p : trajectory)
+    for (const std::vector<double> &p : trajectory)
     {
         autoware_planning_msgs::msg::TrajectoryPoint tp;
 
-        tp.pose.position.x = p.x;
-        tp.pose.position.y = p.y;
-        tp.longitudinal_velocity_mps = p.v;
+        tp.pose.position.x = p[0];
+        tp.pose.position.y = p[1];
+        tp.longitudinal_velocity_mps = p[2];
 
         trajectory_msg.points.push_back(tp);
     }

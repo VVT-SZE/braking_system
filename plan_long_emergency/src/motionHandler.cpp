@@ -6,9 +6,10 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
     this->declare_parameter<std::string>("input_topic_scenario", "plan/strategy");
     this->declare_parameter<std::string>("input_topic_target_space", "plan/target_space");
     this->declare_parameter<std::string>("output_topic_trajectory", "plan/longEmergency/trajectory");
-    this->declare_parameter<double>("safety_distance", 4.0);
+    this->declare_parameter<double>("safety_distance", 5.0);
 
     std::string inputTopicEgo, inputTopicScenario, inputTopicTargetSpace, outputTopicTrajectory;
+    double safety_distance;
     this->get_parameter("input_topic_ego", inputTopicEgo);
     this->get_parameter("input_topic_scenario", inputTopicScenario);
     this->get_parameter("input_topic_target_space", inputTopicTargetSpace);
@@ -29,7 +30,7 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
 
     m_current_scenario_ = "NO_ACTION";
 
-    trajectoryCalculator = new brakingSystem::TrajectoryCalculation();
+    trajectoryCalculator = new brakingSystem::TrajectoryCalculation(safety_distance);
     
 
     RCLCPP_INFO(this->get_logger(), "Plan_long_emergency node has been started.");
@@ -42,6 +43,11 @@ void brakingSystem::MotionHandler::scenarioCallback(const tier4_planning_msgs::m
         m_current_scenario_ = msg->current_scenario;
         RCLCPP_INFO(this->get_logger(), "Strategy changed to: %s", m_current_scenario_.c_str());
     }
+    if (m_current_scenario_ == "NO_ACTION" || m_current_scenario_ == "WARNING") {
+        autoware_planning_msgs::msg::Trajectory trajectory_msg;
+        m_pubTrajectory_->publish(trajectory_msg);
+        RCLCPP_INFO(this->get_logger(), "No relevant objects");
+    }
 }
 
 void brakingSystem::MotionHandler::egoCallback(const crp_msgs::msg::Ego::SharedPtr msg)
@@ -51,22 +57,15 @@ void brakingSystem::MotionHandler::egoCallback(const crp_msgs::msg::Ego::SharedP
 
 void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::TargetSpace::SharedPtr msg)
 {
-    // safety check
-    if (msg->relevant_objects.empty())
-    {
-        RCLCPP_INFO(this->get_logger(), "No relevant objects");
-        return;
-    }
-    
     // deciding if there is a critical object or is an emergeny
     bool is_emergency = (m_current_scenario_ == "LONG_EMERGENCY_AVOID" || 
-                         m_current_scenario_ == "LONG_EMERGENCY_IMPACT");
-
+        m_current_scenario_ == "LONG_EMERGENCY_IMPACT");
+        
     if (is_emergency) {
         RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
-            "Obstacle detected! Object count: %zu", msg->relevant_objects.size());
+        "Obstacle detected! Object count: %zu", msg->relevant_objects.size());
     }
-
+        
     // getting x and y from behaviour planner
     const auto &obj = msg->relevant_objects[0];
     double obj_x = msg->target_pose.pose.position.x;
@@ -75,8 +74,6 @@ void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::Targ
     RCLCPP_INFO(this->get_logger(), "Object at X: %f, Y: %f", obj_x, obj_y);
 
     // making new trajectory with vector
-
-    
     const std::vector<std::vector<double>> trajectory = trajectoryCalculator->calcTrajectory(obj_x, 0.0, 0.0, 0.0, 0.0);
 
     // convert to ros message

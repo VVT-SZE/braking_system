@@ -8,7 +8,7 @@ namespace brakingSystem
     class TrajectoryCalculation
     {
     public:
-        TrajectoryCalculation();
+        TrajectoryCalculation(double safety_distance = 5.0);
 
         std::vector<std::vector<double>> calcTrajectory(
             double criticalObject_X,
@@ -32,7 +32,8 @@ namespace brakingSystem
             double egoObject_aX);
             
     private:
-        double safety_distance;
+        double safety_distance_;
+        double max_velocity;
     };
 
 } // namespace brakingSystem

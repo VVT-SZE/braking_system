@@ -3,9 +3,9 @@
 namespace brakingSystem
 {
 
-    TrajectoryCalculation::TrajectoryCalculation()
+    TrajectoryCalculation::TrajectoryCalculation(double safety_distance)
     {
-        safety_distance = 5.0; // TODO: get from param
+        safety_distance_ = safety_distance;
     }
 
 
@@ -19,7 +19,7 @@ namespace brakingSystem
         std::vector<std::vector<double>> trajectory;
         
         double step = 1.0; // point at every meter
-        double stop_x = criticalObject_X - safety_distance; // dont stop at obj stop at the safety_dist
+        double stop_x = criticalObject_X - safety_distance_; // dont stop at obj stop at the safety_dist
 
         if (stop_x < 0.0)
         {
@@ -37,7 +37,7 @@ namespace brakingSystem
 
         if (trajectory.empty())
         {
-            trajectory.push_back({0.0, 0.0});
+            trajectory.push_back({0.0, 0.0, 0.0});
         }
         
         return trajectory; 

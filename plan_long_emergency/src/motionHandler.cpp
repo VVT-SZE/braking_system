@@ -1,5 +1,4 @@
 #include <plan_long_emergency/motionHandler.hpp>
-#include <../../utils/include/trajectoryCalculation.hpp>
 
 brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
 {
@@ -14,7 +13,7 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
     this->get_parameter("input_topic_scenario", inputTopicScenario);
     this->get_parameter("input_topic_target_space", inputTopicTargetSpace);
     this->get_parameter("output_topic_trajectory", outputTopicTrajectory);
-    this->get_parameter("safety_distance", safety_distance)
+    this->get_parameter("safety_distance", safety_distance);
 
     m_subScenario_ = this->create_subscription<tier4_planning_msgs::msg::Scenario>(
         inputTopicScenario, 1, std::bind(&MotionHandler::scenarioCallback, this, std::placeholders::_1));

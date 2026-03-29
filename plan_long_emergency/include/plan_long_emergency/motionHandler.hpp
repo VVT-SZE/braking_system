@@ -6,6 +6,7 @@
 #include <crp_msgs/msg/target_space.hpp>
 #include <autoware_planning_msgs/msg/trajectory.hpp>
 #include <tier4_planning_msgs/msg/scenario.hpp>
+#include <utils/trajectoryCalculation.hpp>
 
 namespace brakingSystem
 {
@@ -20,6 +21,7 @@ namespace brakingSystem
         void egoCallback(const crp_msgs::msg::Ego::SharedPtr msg);
         void targetSpaceCallback(const crp_msgs::msg::TargetSpace::SharedPtr msg);
 
+        double safety_distance; 
         brakingSystem::TrajectoryCalculation* trajectoryCalculator;
 
         rclcpp::Subscription<crp_msgs::msg::Ego>::SharedPtr m_subEgo_;

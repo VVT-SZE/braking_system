@@ -12,19 +12,22 @@ add_library(utils
 )
 
 target_include_directories(utils PUBLIC
-  include
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
 )
 
 install(
   TARGETS utils
+  EXPORT utils_targets
   DESTINATION lib
 )
-add_executable(test_trajectory test/test_trajectory.cpp)
-target_link_libraries(test_trajectory utils)
-install(TARGETS test_trajectory DESTINATION lib/${PROJECT_NAME})
-# install(
-#   DIRECTORY include/
-#   DESTINATION include
-# )
+
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+ament_export_targets(utils_targets HAS_LIBRARY_TARGET)
+ament_export_include_directories(include)
 
 ament_package()

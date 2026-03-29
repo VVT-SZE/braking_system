@@ -9,10 +9,30 @@ namespace brakingSystem
     {
     public:
         TrajectoryCalculation();
-        std::vector<std::vector<double>> calcTrajectory(double criticalObject_X, double criticalObject_vX, double criticalObject_aX, double egoObject_vX, double egoObject_aX);
-        double getMaximumTrajectoryAcceleration(double criticalObject_X, double criticalObject_vX, double criticalObject_aX, double egoObject_vX, double egoObject_aX);
-        double getMaximumTrajectoryJerk(double criticalObject_X, double criticalObject_vX, double criticalObject_aX, double egoObject_vX, double egoObject_aX);
 
+        std::vector<std::vector<double>> calcTrajectory(
+            double criticalObject_X,
+            double criticalObject_vX,
+            double criticalObject_aX,
+            double egoObject_vX,
+            double egoObject_aX);
+
+        double getMaximumTrajectoryAcceleration(
+            double criticalObject_X,
+            double criticalObject_vX,
+            double criticalObject_aX,
+            double egoObject_vX,
+            double egoObject_aX);
+
+        double getMaximumTrajectoryJerk(
+            double criticalObject_X,
+            double criticalObject_vX,
+            double criticalObject_aX,
+            double egoObject_vX,
+            double egoObject_aX);
+            
+    private:
+        double safety_distance;
     };
 
 } // namespace brakingSystem

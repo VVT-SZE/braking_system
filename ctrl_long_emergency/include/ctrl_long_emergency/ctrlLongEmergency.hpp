@@ -25,6 +25,7 @@ class CtrlLongEmergency : public rclcpp::Node
         rclcpp::Publisher<autoware_control_msgs::msg::Control>::SharedPtr m_pubControl_;
 
         autoware_control_msgs::msg::Control m_control_msg;
+
         rclcpp::TimerBase::SharedPtr m_timer_;
     };
 

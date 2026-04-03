@@ -69,6 +69,58 @@ namespace brakingSystem
         return 0.0;
     }
 
+    std::vector<double> calculateCoefficients(
+                double criticalObject_X, 
+                double criticalObject_vX, 
+                double criticalObject_aX, 
+                double egoObject_vX, 
+                double egoObject_aX 
+            ) {
+        double x_tar = criticalObject_X - safety_distance_;
+        
+        double dv = egoObject_vX - criticalObject_vX;
+        
+        // Safety check: if we are already going slower than the target, or dv is 0,
+        // we don't need a braking trajectory to avoid collision. 
+        if (dv <= 0.0) {
+            return {egoObject_vX, egoObject_aX, 0.0, 0.0}; 
+        }
+        
+        double v_mean = dv / 2.0;
+        
+        // Prevent division by zero just in case
+        if (v_mean <= 0.001) {
+            v_mean = 0.001; 
+        }
+        
+        double t_c = x_tar / v_mean;
+
+        std::vector<std::vector<double>> A = {
+            {1.0, 0.0, 0.0, 0.0},
+            {0.0, 1.0, 0.0, 0.0},
+            {1.0, t_c, t_c * t_c, t_c * t_c * t_c},
+            {0.0, 1.0, 2.0 * t_c, 3.0 * t_c * t_c}
+        };
+
+        std::vector<std::vector<double>> b = {
+            {egoObject_vX},
+            {egoObject_aX},
+            {criticalObject_vX},
+            {criticalObject_aX}
+        };
+
+        std::vector<std::vector<double>> c_matrix = mxMul(inv(A), b);
+
+        std::vector<double> coefficients = {
+            c_matrix[0][0], // c0
+            c_matrix[1][0], // c1
+            c_matrix[2][0], // c2
+            c_matrix[3][0]  // c3
+        };
+
+        return coefficients;
+    }
+
 
     std::vector<std::vector<double>> TrajectoryCalculation::inv(std::vector<std::vector<double>> mat) {
         int n = mat.size();

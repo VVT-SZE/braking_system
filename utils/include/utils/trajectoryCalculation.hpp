@@ -36,6 +36,13 @@ namespace brakingSystem
         double max_velocity;
         std::vector<std::vector<double>> inv(std::vector<std::vector<double>> mat);
         std::vector<std::vector<double>> mxMul(std::vector<std::vector<double>> mxA, std::vector<std::vector<double>> mxB);
+        std::vector<double> calculateCoefficients(
+            double criticalObject_X,
+            double criticalObject_vX,
+            double criticalObject_aX,
+            double egoObject_vX,
+            double egoObject_aX
+        );
     };
 
 } // namespace brakingSystem

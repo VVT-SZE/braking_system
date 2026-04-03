@@ -34,6 +34,8 @@ namespace brakingSystem
     private:
         double safety_distance_;
         double max_velocity;
+        std::vector<std::vector<double>> inv(std::vector<std::vector<double>> mat);
+        std::vector<std::vector<double>> mxMul(std::vector<std::vector<double>> mxA, std::vector<std::vector<double>> mxB);
     };
 
 } // namespace brakingSystem

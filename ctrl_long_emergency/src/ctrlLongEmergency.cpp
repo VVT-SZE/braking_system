@@ -42,29 +42,27 @@ void brakingSystem::CtrlLongEmergency::egoCallback(const crp_msgs::msg::Ego::Sha
 void brakingSystem::CtrlLongEmergency::trajectoryCallback(
     const autoware_planning_msgs::msg::Trajectory::SharedPtr msg)
 {
-    if (msg->points.empty()) {
-        m_hasTrajectory_ = false;
+    if (msg->points.empty() ) {
+        m_control_msg.longitudinal.velocity = 12.0;
+        m_control_msg.longitudinal.acceleration = 2.0;
+        m_pubControl_->publish(m_control_msg);
         return;
     }
-
-    m_hasTrajectory_ = true;
-    m_control_msg.longitudinal.velocity = msg->points.front().longitudinal_velocity_mps;
+    float target_velocity = msg->points.front().longitudinal_velocity_mps;
 
     RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 500,
-        "target_velocity: %.3f", m_control_msg.longitudinal.velocity);
+        "target_velocity: %.3f", target_velocity);
+
+    m_control_msg.longitudinal.velocity = target_velocity;
+    m_control_msg.longitudinal.acceleration = -5.0;
+    RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "EMERGENCY STOP");
+    m_pubControl_->publish(m_control_msg);
 }
 
 void brakingSystem::CtrlLongEmergency::run()
 {
     m_control_msg.stamp = this->now();
-
-    if (!m_hasTrajectory_) {
-        m_control_msg.longitudinal.velocity = DEFAULT_VELOCITY;
-        RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
-            "No trajectory received – sending default velocity: %.1f", DEFAULT_VELOCITY);
-    }
-
-    m_pubControl_->publish(m_control_msg);
+    // m_pubControl_->publish(m_control_msg);
 }
 
 

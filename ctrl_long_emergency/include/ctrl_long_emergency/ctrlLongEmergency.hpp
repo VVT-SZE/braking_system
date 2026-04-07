@@ -27,6 +27,9 @@ class CtrlLongEmergency : public rclcpp::Node
         autoware_control_msgs::msg::Control m_control_msg;
 
         rclcpp::TimerBase::SharedPtr m_timer_;
+        
+        float DEFAULT_VELOCITY = 12.0f;
+        bool m_hasTrajectory_ = false;
     };
 
 } // namespace CtrlLongEmergency

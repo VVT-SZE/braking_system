@@ -12,6 +12,23 @@ namespace brakingSystem
         safety_distance_ = safety_distance;
     }
 
+    double TrajectoryCalculation::calcTc(
+        double criticalObject_X,
+        double criticalObject_vX,
+        double criticalObject_aX,
+        double egoObject_vX,
+        double egoObject_aX)
+    {
+        double x_tar = criticalObject_X - safety_distance_;
+        double dv = egoObject_vX - criticalObject_vX;
+        
+        double v_mean = dv / 2.0;
+        if (v_mean <= 0.001) {
+            v_mean = 0.001;
+        }
+        
+        return x_tar / v_mean;
+    }
 
     std::vector<std::vector<double>> TrajectoryCalculation::calcTrajectory(
         double criticalObject_X,
@@ -21,7 +38,7 @@ namespace brakingSystem
         double egoObject_aX)
     {
         std::vector<double> c = calculateCoefficients(criticalObject_X, criticalObject_vX, criticalObject_aX, egoObject_vX, egoObject_aX);
-        double dT = calcTc(criticalObject_X, criticalObject_vX, criticalObject_aX, egoObject_vX, egoObject_aX ) / N
+        double dT = calcTc(criticalObject_X, criticalObject_vX, criticalObject_aX, egoObject_vX, egoObject_aX ) / N;
 
         std::vector<std::vector<double>> trajectory;
         
@@ -70,16 +87,7 @@ namespace brakingSystem
     {
         std::vector<double> c = calculateCoefficients(criticalObject_X, criticalObject_vX, criticalObject_aX, egoObject_vX, egoObject_aX);
         
-        double x_tar = criticalObject_X - safety_distance_;
-        double dv = egoObject_vX - criticalObject_vX; 
-        double v_mean = dv / 2.0;
-        
-        // Prevent division by zero just in case
-        if (v_mean <= 0.001) {
-            v_mean = 0.001; 
-        }
-        
-        double t_c = x_tar / v_mean;
+        double t_c = calcTc(criticalObject_X, criticalObject_vX, criticalObject_aX, egoObject_vX, egoObject_aX);
 
         double j_min = 2*c[2];
         double j_max = 2*c[2] + 6*c[3]*t_c;
@@ -93,25 +101,9 @@ namespace brakingSystem
                 double criticalObject_aX, 
                 double egoObject_vX, 
                 double egoObject_aX 
-            ) {
-        double x_tar = criticalObject_X - safety_distance_;
-        
-        double dv = egoObject_vX - criticalObject_vX;
-        
-        // Safety check: if we are already going slower than the target, or dv is 0,
-        // we don't need a braking trajectory to avoid collision. 
-        if (dv <= 0.0) {
-            return {egoObject_vX, egoObject_aX, 0.0, 0.0}; 
-        }
-        
-        double v_mean = dv / 2.0;
-        
-        // Prevent division by zero just in case
-        if (v_mean <= 0.001) {
-            v_mean = 0.001; 
-        }
-        
-        double t_c = x_tar / v_mean;
+            )
+    {
+        double t_c = calcTc(criticalObject_X, criticalObject_vX, criticalObject_aX, egoObject_vX, egoObject_aX);
 
         std::vector<std::vector<double>> A = {
             {1.0, 0.0, 0.0, 0.0},
@@ -138,7 +130,6 @@ namespace brakingSystem
 
         return coefficients;
     }
-
 
     std::vector<std::vector<double>> TrajectoryCalculation::inv(std::vector<std::vector<double>> mat) {
         int n = mat.size();

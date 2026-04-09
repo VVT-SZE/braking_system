@@ -13,12 +13,14 @@ brakingSystem::BehaviorPlanner::BehaviorPlanner() : Node("behavior_planner")
     std::string inputTopicScenario;
     std::string outputTopicScenario;
     std::string outputTopicTargetSpace;
+    double frequency;
 
     this->get_parameter<std::string>("input_topic_ego", inputTopicEgo);
     this->get_parameter<std::string>("input_topic_scenario", inputTopicScenario);
     this->get_parameter<std::string>("output_topic_scenario", outputTopicScenario);
     this->get_parameter<std::string>("output_topic_target_space", outputTopicTargetSpace);
     this->get_parameter<double>("critical_distance", m_critical_distance_);
+    this->get_parameter<double>("publish_rate", frequency);
 
     m_subScenario_ = this->create_subscription<crp_msgs::msg::Scenario>(
         inputTopicScenario,
@@ -37,6 +39,8 @@ brakingSystem::BehaviorPlanner::BehaviorPlanner() : Node("behavior_planner")
     m_pubTargetSpace_ = this->create_publisher<crp_msgs::msg::TargetSpace>(
         outputTopicTargetSpace,
         1);
+
+    m_timer_ = this->create_wall_timer(std::chrono::milliseconds(1000 / frequency), std::bind(&brakingSystem::BehaviorPlanner::run, this));
 
     RCLCPP_INFO(this->get_logger(), "behavior_planner node has been started (critical_distance=%.2f)", m_critical_distance_);
 }
@@ -59,13 +63,26 @@ void brakingSystem::BehaviorPlanner::scenarioCallback(const crp_msgs::msg::Scena
             critical_objects.push_back(obj);
         }
     }
+    m_critical_objects_.clear();
+    m_critical_objects_ = critical_objects;
+}
 
-    // Find the closest critical object after all have been collected
-    if (!critical_objects.empty())
+void brakingSystem::BehaviorPlanner::egoCallback(const crp_msgs::msg::Ego::SharedPtr msg)
+{
+    m_ego_pose_ = msg->pose.pose.position;
+    m_ego_heading_ = msg->orientation;
+}
+
+void brakingSystem::BehaviorPlanner::run()
+{
+    auto target_space_msg = crp_msgs::msg::TargetSpace();
+    auto scenario_msg = tier4_planning_msgs::msg::Scenario();
+    // TODO: implement the logic to determine the scenario and target space based on the critical objects and ego state. For now, we will just publish the closest critical object if it exists.
+    if (!m_critical_objects_.empty())
     {
         auto closest_obj = std::min_element(
-            critical_objects.begin(),
-            critical_objects.end(),
+            m_critical_objects_.begin(),
+            m_critical_objects_.end(),
             [](const autoware_perception_msgs::msg::PredictedObject &a, const autoware_perception_msgs::msg::PredictedObject &b)
             {
                 return a.kinematics.initial_pose_with_covariance.pose.position.x <
@@ -77,35 +94,21 @@ void brakingSystem::BehaviorPlanner::scenarioCallback(const crp_msgs::msg::Scena
 
         RCLCPP_INFO(this->get_logger(), "Closest object X: %f, Y: %f", closest_x, closest_y);
 
-        // Create and populate TargetSpace message with closest object data
-        auto target_space_msg = crp_msgs::msg::TargetSpace();
         target_space_msg.header.stamp = this->now();
         target_space_msg.header.frame_id = "base_link";
-
-        // Set target pose from closest object
         target_space_msg.target_pose = closest_obj->kinematics.initial_pose_with_covariance;
-
-        // Add closest object to relevant_objects
         target_space_msg.relevant_objects.push_back(*closest_obj);
-
-        // Create Scenario message and add type
-        auto scenario_msg = tier4_planning_msgs::msg::Scenario();
         scenario_msg.current_scenario = "LONG_EMERGENCY_IMPACT";
-
-        // Publish the closest object data
-        m_pubScenario_->publish(scenario_msg);
-        m_pubTargetSpace_->publish(target_space_msg);
-    } else {
-        auto scenario_msg = tier4_planning_msgs::msg::Scenario();
-        scenario_msg.current_scenario = "NO_ACTION";
-        m_pubScenario_->publish(scenario_msg);
     }
-}
+    else
+    {
+        target_space_msg.header.stamp = this->now();
+        target_space_msg.header.frame_id = "base_link";
+        scenario_msg.current_scenario = "NO_ACTION";
+    }
 
-void brakingSystem::BehaviorPlanner::egoCallback(const crp_msgs::msg::Ego::SharedPtr msg)
-{
-    m_ego_pose_ = msg->pose.pose.position;
-    m_ego_heading_ = msg->orientation;
+    m_pubScenario_->publish(scenario_msg);
+    m_pubTargetSpace_->publish(target_space_msg);
 }
 
 int main(int argc, char **argv)

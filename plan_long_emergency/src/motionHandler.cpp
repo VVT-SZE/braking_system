@@ -10,6 +10,7 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
 
     std::string inputTopicEgo, inputTopicScenario, inputTopicTargetSpace, outputTopicTrajectory;
     double safety_distance;
+
     this->get_parameter("input_topic_ego", inputTopicEgo);
     this->get_parameter("input_topic_scenario", inputTopicScenario);
     this->get_parameter("input_topic_target_space", inputTopicTargetSpace);
@@ -32,6 +33,8 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
 
     trajectoryCalculator = new brakingSystem::TrajectoryCalculation(safety_distance);
     
+    m_current_velocity_ = 0.0; 
+    m_current_acceleration_ = 0.0;
 
     RCLCPP_INFO(this->get_logger(), "Plan_long_emergency node has been started.");
 }
@@ -52,35 +55,122 @@ void brakingSystem::MotionHandler::scenarioCallback(const tier4_planning_msgs::m
 
 void brakingSystem::MotionHandler::egoCallback(const crp_msgs::msg::Ego::SharedPtr msg)
 {   
-    (void)msg;
+    m_current_velocity_ = msg->twist.twist.linear.x;
+    m_current_acceleration_ = msg->accel.accel.linear.x;
 }
 
 void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::TargetSpace::SharedPtr msg)
 {
-    // deciding if there is a critical object or is an emergeny
-    bool is_emergency = (m_current_scenario_ == "LONG_EMERGENCY_AVOID" || 
-        m_current_scenario_ == "LONG_EMERGENCY_IMPACT");
+    // scenario check
+    bool is_emergency = 
+        (m_current_scenario_ == "LONG_EMERGENCY_AVOID" || m_current_scenario_ == "LONG_EMERGENCY_IMPACT");
         
     if (is_emergency) {
         RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
         "Obstacle detected! Object count: %zu", msg->relevant_objects.size());
     }
+
+    double ego_v = m_current_velocity_; 
+    double ego_a = m_current_acceleration_;
+
+    // empty object-list risk assesment, if empty just advance
+    if (msg->relevant_objects.empty())
+    {
+        RCLCPP_WARN(this->get_logger(), "No relevant objects");
+
+        autoware_planning_msgs::msg::Trajectory traj;
+        traj.header = msg->header;
+
+        std::vector<std::vector<double>> trajectory = {
+            {0.0, 0.0, ego_v},
+            {1.0, 0.0, ego_v}
+        };
+
         
-    // getting x and y from behaviour planner
+        for (const auto &p : trajectory)
+        {
+            autoware_planning_msgs::msg::TrajectoryPoint tp;
+            tp.pose.position.x = p[0];
+            tp.pose.position.y = p[1];
+            tp.longitudinal_velocity_mps = p[2];
+            traj.points.push_back(tp);
+        }
+
+        m_pubTrajectory_->publish(traj);
+        return;
+    }
+            
+    // getting information about the object from BP
     const auto &obj = msg->relevant_objects[0];
+
     double obj_x = msg->target_pose.pose.position.x;
     double obj_y = msg->target_pose.pose.position.y;
 
+    double obj_v = obj.kinematics.initial_twist_with_covariance.twist.linear.x;
+    double obj_a = obj.kinematics.initial_acceleration_with_covariance.accel.linear.x;
+
+    if (std::abs(obj_v) < 0.001) obj_v = 0.0;
+    if (std::abs(obj_a) < 0.001) obj_a = 0.0;
+
     RCLCPP_INFO(this->get_logger(), "Object at X: %f, Y: %f", obj_x, obj_y);
 
-    // making new trajectory with vector
-    const std::vector<std::vector<double>> trajectory = trajectoryCalculator->calcTrajectory(obj_x, 0.0, 0.0, 0.0, 0.0);
+
+    // ego state
+    double ego_v = m_current_velocity_;
+    double ego_a = m_current_acceleration_; 
+
+    // calculating real trajectory with the math from utils
+    std::vector<std::vector<double>> trajectory;
+
+    if (is_emergency)
+    {
+        trajectory = trajectoryCalculator->calcTrajectory(
+            obj_x,
+            obj_v,
+            obj_a,
+            ego_v,
+            ego_a);
+
+
+            // jerk and acceloration limit check
+            /*double max_acc = trajectoryCalculator->getMaximumTrajectoryAcceleration(obj_x, obj_v, obj_a, ego_v, ego_a);
+            double max_jerk = trajectoryCalculator->getMaximumTrajectoryJerk(obj_x, obj_v, obj_a, ego_v, ego_a);
+
+            constexpr double ACC_LIMIT = 3.0;
+            constexpr double JERK_LIMIT = 5.0;
+
+            double acc_scale = ACC_LIMIT / std::max(max_acc, 1e-6);
+            double jerk_scale = JERK_LIMIT / std::max(max_jerk, 1e-6);
+
+            double scale = std::min(1.0, std::min(acc_scale, jerk_scale));
+
+            if (scale < 1.0)
+            {
+                RCLCPP_WARN(this->get_logger(),
+                    "Soft limit applied. Scale: %.2f (acc: %.2f, jerk: %.2f)",
+                    scale, max_acc, max_jerk);
+
+                for (auto &p : trajectory)
+                {
+                    p[2] *= scale;  // velocity scaling
+                }
+            }*/
+    
+    } 
+    else 
+    {   
+        // normal advance
+        trajectory = {
+        {0.0, 0.0, ego_v},
+        {1.0, 0.0, ego_v}
+        };          
+    }
 
     // convert to ros message
     autoware_planning_msgs::msg::Trajectory trajectory_msg;
     trajectory_msg.header = msg->header;
 
-    for (const std::vector<double> &p : trajectory)
+    for (const auto &p : trajectory)
     {
         autoware_planning_msgs::msg::TrajectoryPoint tp;
 
@@ -94,7 +184,7 @@ void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::Targ
     // publish trajectory
     m_pubTrajectory_->publish(trajectory_msg);
 
-    RCLCPP_INFO(this->get_logger(), "Published emergency braking trajectory");
+    RCLCPP_INFO(this->get_logger(), "Published trajectory");
 }
 
 int main(int argc, char * argv[])

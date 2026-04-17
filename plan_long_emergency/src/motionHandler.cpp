@@ -10,6 +10,7 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
 
     std::string inputTopicEgo, inputTopicScenario, inputTopicTargetSpace, outputTopicTrajectory;
     double safety_distance;
+
     this->get_parameter("input_topic_ego", inputTopicEgo);
     this->get_parameter("input_topic_scenario", inputTopicScenario);
     this->get_parameter("input_topic_target_space", inputTopicTargetSpace);
@@ -32,6 +33,8 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
 
     trajectoryCalculator = new brakingSystem::TrajectoryCalculation(safety_distance);
     
+    m_current_velocity_ = 0.0; 
+    m_current_acceleration_ = 0.0;
 
     RCLCPP_INFO(this->get_logger(), "Plan_long_emergency node has been started.");
 }
@@ -52,34 +55,38 @@ void brakingSystem::MotionHandler::scenarioCallback(const tier4_planning_msgs::m
 
 void brakingSystem::MotionHandler::egoCallback(const crp_msgs::msg::Ego::SharedPtr msg)
 {   
-    (void)msg;
+    m_current_velocity_ = msg->twist.twist.linear.x;
+    m_current_acceleration_ = msg->accel.accel.linear.x;
 }
 
 void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::TargetSpace::SharedPtr msg)
 {
     // scenario check
     bool is_emergency = 
-        (m_current_scenario_ == "LONG_EMERGENCY_AVOID" || 
-         m_current_scenario_ == "LONG_EMERGENCY_IMPACT");
+        (m_current_scenario_ == "LONG_EMERGENCY_AVOID" || m_current_scenario_ == "LONG_EMERGENCY_IMPACT");
         
     if (is_emergency) {
         RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
         "Obstacle detected! Object count: %zu", msg->relevant_objects.size());
     }
 
-    // empty object risk assesment, if empty just advance
+    double ego_v = m_current_velocity_; 
+    double ego_a = m_current_acceleration_;
+
+    // empty object-list risk assesment, if empty just advance
     if (msg->relevant_objects.empty())
     {
         RCLCPP_WARN(this->get_logger(), "No relevant objects");
+
+        autoware_planning_msgs::msg::Trajectory traj;
+        traj.header = msg->header;
 
         std::vector<std::vector<double>> trajectory = {
             {0.0, 0.0, ego_v},
             {1.0, 0.0, ego_v}
         };
 
-        autoware_planning_msgs::msg::Trajectory traj;
-        traj.header = msg->header;
-
+        
         for (const auto &p : trajectory)
         {
             autoware_planning_msgs::msg::TrajectoryPoint tp;
@@ -126,22 +133,28 @@ void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::Targ
 
 
             // jerk and acceloration limit check
-            double max_acc = trajectoryCalculator->getMaximumTrajectoryAcceleration(obj_x, obj_v, obj_a, ego_v, ego_a);
+            /*double max_acc = trajectoryCalculator->getMaximumTrajectoryAcceleration(obj_x, obj_v, obj_a, ego_v, ego_a);
             double max_jerk = trajectoryCalculator->getMaximumTrajectoryJerk(obj_x, obj_v, obj_a, ego_v, ego_a);
 
-            double ACC_LIMIT = 3.0;
-            double JERK_LIMIT = 5.0;
+            constexpr double ACC_LIMIT = 3.0;
+            constexpr double JERK_LIMIT = 5.0;
 
-            if (max_acc > ACC_LIMIT || max_jerk > JERK_LIMIT)
+            double acc_scale = ACC_LIMIT / std::max(max_acc, 1e-6);
+            double jerk_scale = JERK_LIMIT / std::max(max_jerk, 1e-6);
+
+            double scale = std::min(1.0, std::min(acc_scale, jerk_scale));
+
+            if (scale < 1.0)
             {
                 RCLCPP_WARN(this->get_logger(),
-                    "Limit exceeded! Acc: %.2f | Jerk: %.2f",
-                    max_acc, max_jerk);
+                    "Soft limit applied. Scale: %.2f (acc: %.2f, jerk: %.2f)",
+                    scale, max_acc, max_jerk);
 
-                // fallback
-                trajectory.clear();
-                trajectory.push_back({0.5, 0.0, ego_v * 0.5}); // not a hardstop but rather comfier
-            }
+                for (auto &p : trajectory)
+                {
+                    p[2] *= scale;  // velocity scaling
+                }
+            }*/
     
     } 
     else 

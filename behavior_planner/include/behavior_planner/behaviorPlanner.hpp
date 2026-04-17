@@ -7,6 +7,7 @@
 #include <crp_msgs/msg/target_space.hpp>
 #include <tier4_planning_msgs/msg/scenario.hpp>
 #include <utils/trajectoryCalculation.hpp>
+#include <memory>
 
 namespace brakingSystem
 {
@@ -36,7 +37,10 @@ namespace brakingSystem
         geometry_msgs::msg::Accel m_ego_accel_;
         float m_ego_heading_;
         double m_critical_distance_{50.0};
-        TrajectoryCalculation::TrajectoryCalculation TrajectoryCalculator;
+        double m_warning_threshold_{1.5};
+        double m_emergency_threshold_{2.5};
+
+        std::unique_ptr<TrajectoryCalculation> m_trajectory_calculator_;
     };
 
 } // namespace brakingSystem

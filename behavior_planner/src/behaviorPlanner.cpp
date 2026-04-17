@@ -16,8 +16,6 @@ brakingSystem::BehaviorPlanner::BehaviorPlanner() : Node("behavior_planner")
     std::string inputTopicScenario;
     std::string outputTopicScenario;
     std::string outputTopicTargetSpace;
-    double warning_threshold;
-    double emergency_threshold;
     double frequency;
 
     this->get_parameter<std::string>("input_topic_ego", inputTopicEgo);
@@ -26,10 +24,10 @@ brakingSystem::BehaviorPlanner::BehaviorPlanner() : Node("behavior_planner")
     this->get_parameter<std::string>("output_topic_target_space", outputTopicTargetSpace);
     this->get_parameter<double>("critical_distance", m_critical_distance_);
     this->get_parameter<double>("publish_rate", frequency);
-    this->get_parameter<double>("warning_threshold", warning_threshold);
-    this->get_parameter<double>("emergency_threshold", emergency_threshold);
+    this->get_parameter<double>("warning_threshold", m_warning_threshold_);
+    this->get_parameter<double>("emergency_threshold", m_emergency_threshold_);
 
-    TrajectoryCalculator = new TrajectoryCalculation::TrajectoryCalculation(m_critical_distance_);
+    m_trajectory_calculator_ = std::make_unique<TrajectoryCalculation>(m_critical_distance_);
 
     m_subScenario_ = this->create_subscription<crp_msgs::msg::Scenario>(
         inputTopicScenario,
@@ -70,12 +68,16 @@ brakingSystem::BehaviorPlanner::BehaviorPlanner() : Node("behavior_planner")
 void brakingSystem::BehaviorPlanner::scenarioCallback(const crp_msgs::msg::Scenario::SharedPtr msg)
 {
     // TODO: calculate distance based on left and right lane distance from each other.
-    const float LANE_WIDTH = 4.0f;
-    double width = std::abs(msg->paths[0].left_bound.front().y - msg->paths[0].right_bound.front().y);
-    if (width < LANE_WIDTH)
+    double lane_width = 4.0;
+    if (!msg->paths.empty() &&
+        !msg->paths[0].path.left_bound.empty() &&
+        !msg->paths[0].path.right_bound.empty())
     {
-        RCLCPP_INFO(this->get_logger(), "Lane width (%.2f m) is less than expected (%.2f m).", width, LANE_WIDTH);
-        LANE_WIDTH = width;
+        const double width = std::abs(msg->paths[0].path.left_bound.front().y - msg->paths[0].path.right_bound.front().y);
+        if (width > 0.0 && width < lane_width)
+        {
+            lane_width = width;
+        }
     }
     this->get_parameter<double>("critical_distance", m_critical_distance_);
 
@@ -86,7 +88,7 @@ void brakingSystem::BehaviorPlanner::scenarioCallback(const crp_msgs::msg::Scena
         double obj_x = obj.kinematics.initial_pose_with_covariance.pose.position.x;
         double obj_y = obj.kinematics.initial_pose_with_covariance.pose.position.y;
 
-        if (obj_x > 0 && obj_x < m_critical_distance_ && std::abs(obj_y) < LANE_WIDTH / 2.0f)
+        if (obj_x > 0 && obj_x < m_critical_distance_ && std::abs(obj_y) < lane_width / 2.0)
         {
             critical_objects.push_back(obj);
         }
@@ -117,26 +119,33 @@ void brakingSystem::BehaviorPlanner::run()
                        b.kinematics.initial_pose_with_covariance.pose.position.x;
             });
 
-        double max_acceleration = TrajectoryCalculator.getMaximumTrajectoryAcceleration(
+        RCLCPP_INFO(this->get_logger(), "Closest critical object at x=%.2f m with velocity=%.2f m/s and acceleration=%.2f m/s^2, Ego velocity: %.2f m/s, Ego acceleration: %.2f m/s^2",
+                    closest_obj->kinematics.initial_pose_with_covariance.pose.position.x,
+                    closest_obj->kinematics.initial_twist_with_covariance.twist.linear.x,
+                    closest_obj->kinematics.initial_acceleration_with_covariance.accel.linear.x,
+                    m_ego_twist_.linear.x,
+                    m_ego_accel_.linear.x);
+
+        double max_acceleration = m_trajectory_calculator_->getMaximumTrajectoryAcceleration(
             closest_obj->kinematics.initial_pose_with_covariance.pose.position.x,
             closest_obj->kinematics.initial_twist_with_covariance.twist.linear.x,
-            closest_obj->kinematics.initial_accel_with_covariance.accel.linear.x,
+            closest_obj->kinematics.initial_acceleration_with_covariance.accel.linear.x,
             m_ego_twist_.linear.x,
             m_ego_accel_.linear.x);
-        double closest_x = closest_obj->kinematics.initial_pose_with_covariance.pose.position.x;
-        double closest_y = closest_obj->kinematics.initial_pose_with_covariance.pose.position.y;
+
+        RCLCPP_INFO(this->get_logger(), "Calculated max acceleration: %.2f m/s^2", max_acceleration);
 
         if (max_acceleration > 9.8) // LONG_EMERGENCY_IMPACT
         {
             RCLCPP_ERROR(this->get_logger(), "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_acceleration);
             scenario_msg.current_scenario = "LONG_EMERGENCY_IMPACT";
         }
-        else if (max_acceleration > emergency_threshold) // LONG_EMERGENCY_AVOID
+        else if (max_acceleration > m_emergency_threshold_) // LONG_EMERGENCY_AVOID
         {
             RCLCPP_ERROR(this->get_logger(), "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_acceleration);
             scenario_msg.current_scenario = "LONG_EMERGENCY_AVOID";
         }
-        else if (max_acceleration > warning_threshold) // WARNING
+        else if (max_acceleration > m_warning_threshold_) // WARNING
         {
             RCLCPP_INFO(this->get_logger(), "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_acceleration);
             scenario_msg.current_scenario = "WARNING";
@@ -161,6 +170,7 @@ void brakingSystem::BehaviorPlanner::run()
     }
     else
     {
+        RCLCPP_INFO(this->get_logger(), "No critical objects detected.");
         target_space_msg.header.stamp = this->now();
         target_space_msg.header.frame_id = "base_link";
         scenario_msg.current_scenario = "NO_ACTION";

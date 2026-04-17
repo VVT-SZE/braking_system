@@ -115,10 +115,6 @@ void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::Targ
     RCLCPP_INFO(this->get_logger(), "Object at X: %f, Y: %f", obj_x, obj_y);
 
 
-    // ego state
-    double ego_v = m_current_velocity_;
-    double ego_a = m_current_acceleration_; 
-
     // calculating real trajectory with the math from utils
     std::vector<std::vector<double>> trajectory;
 

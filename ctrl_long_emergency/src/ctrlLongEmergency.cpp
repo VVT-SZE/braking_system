@@ -29,7 +29,8 @@ brakingSystem::CtrlLongEmergency ::CtrlLongEmergency () : Node("ctrl_long_emerge
         outputTopicControl,
         1);
 
-    m_timer_ = this->create_wall_timer(std::chrono::milliseconds(20), std::bind(&brakingSystem::CtrlLongEmergency::run, this));  
+    m_timer_ = this->create_wall_timer(std::chrono::milliseconds(20), std::bind(&brakingSystem::CtrlLongEmergency::run, this));
+    m_control_msg.longitudinal.velocity = 12.0;
 
     RCLCPP_INFO(this->get_logger(), "ctrl_long_emergency node has been started");
 }
@@ -42,11 +43,11 @@ void brakingSystem::CtrlLongEmergency::egoCallback(const crp_msgs::msg::Ego::Sha
 void brakingSystem::CtrlLongEmergency::trajectoryCallback(
     const autoware_planning_msgs::msg::Trajectory::SharedPtr msg)
 {
-    // if (msg->points.empty() ) {
-    //     m_control_msg.longitudinal.velocity = 12.0;
-    //     m_pubControl_->publish(m_control_msg);
-    //     return;
-    // }
+    if (msg->points.empty() ) {
+        // m_control_msg.longitudinal.velocity = 12.0;
+        // m_pubControl_->publish(m_control_msg);
+        return;
+    }
     float target_velocity = msg->points.front().longitudinal_velocity_mps;
 
     RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 500,

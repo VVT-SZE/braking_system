@@ -1,6 +1,6 @@
 /**:
     ros__parameters:
         publish_rate: 50.0 # hz
-        critical_distance: 100.0 # meters
-        warning_threshold: 1.5 # m/s^2
-        emergency_threshold: 2.5 # m/s^2
+        critical_distance: 200.0 # meters
+        warning_threshold: -1.5 # m/s^2
+        emergency_threshold: -2.5 # m/s^2

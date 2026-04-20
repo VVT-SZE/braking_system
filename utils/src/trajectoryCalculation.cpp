@@ -84,7 +84,7 @@ namespace brakingSystem
         double egoObject_aX)
     {
         double t_c = calcTc(criticalObject_X, criticalObject_vX, criticalObject_aX, egoObject_vX, egoObject_aX);
-
+        
         std::vector<std::vector<double>> A = {
             {1.0, 0.0, 0.0, 0.0},
             {0.0, 1.0, 0.0, 0.0},
@@ -118,7 +118,7 @@ namespace brakingSystem
     {
         double x_tar = criticalObject_X - safety_distance_;
         double dv = egoObject_vX - criticalObject_vX;
-
+        
         double v_mean = dv / 2.0;
         if (v_mean <= 0.001)
         {

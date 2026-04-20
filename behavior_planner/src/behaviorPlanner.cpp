@@ -8,9 +8,10 @@ brakingSystem::BehaviorPlanner::BehaviorPlanner() : Node("behavior_planner")
     this->declare_parameter<std::string>("output_topic_target_space", "plan/target_space");
     this->declare_parameter<bool>("debug_enabled", false);
     this->declare_parameter<double>("critical_distance", 50.0);
+    this->declare_parameter<double>("safety_distance", 5.0);
     this->declare_parameter<double>("publish_rate", 50.0);
-    this->declare_parameter<double>("warning_threshold", 1.5);
-    this->declare_parameter<double>("emergency_threshold", 2.5);
+    this->declare_parameter<double>("warning_threshold", -1.5);
+    this->declare_parameter<double>("emergency_threshold", -2.5);
 
     std::string inputTopicEgo;
     std::string inputTopicScenario;
@@ -23,11 +24,12 @@ brakingSystem::BehaviorPlanner::BehaviorPlanner() : Node("behavior_planner")
     this->get_parameter<std::string>("output_topic_scenario", outputTopicScenario);
     this->get_parameter<std::string>("output_topic_target_space", outputTopicTargetSpace);
     this->get_parameter<double>("critical_distance", m_critical_distance_);
+    this->get_parameter<double>("safety_distance", m_safety_distance_);
     this->get_parameter<double>("publish_rate", frequency);
     this->get_parameter<double>("warning_threshold", m_warning_threshold_);
     this->get_parameter<double>("emergency_threshold", m_emergency_threshold_);
 
-    m_trajectory_calculator_ = std::make_unique<TrajectoryCalculation>(m_critical_distance_);
+    m_trajectory_calculator_ = std::make_unique<TrajectoryCalculation>(m_safety_distance_);
 
     m_subScenario_ = this->create_subscription<crp_msgs::msg::Scenario>(
         inputTopicScenario,
@@ -126,28 +128,28 @@ void brakingSystem::BehaviorPlanner::run()
                     m_ego_twist_.linear.x,
                     m_ego_accel_.linear.x);
 
-        double max_acceleration = m_trajectory_calculator_->getMaximumTrajectoryAcceleration(
+        double max_deceleration = m_trajectory_calculator_->getMaximumTrajectoryAcceleration(
             closest_obj->kinematics.initial_pose_with_covariance.pose.position.x,
             closest_obj->kinematics.initial_twist_with_covariance.twist.linear.x,
             closest_obj->kinematics.initial_acceleration_with_covariance.accel.linear.x,
             m_ego_twist_.linear.x,
             m_ego_accel_.linear.x);
 
-        RCLCPP_INFO(this->get_logger(), "Calculated max acceleration: %.2f m/s^2", max_acceleration);
+        RCLCPP_INFO(this->get_logger(), "Calculated max acceleration: %.2f m/s^2", max_deceleration);
 
-        if (max_acceleration > 9.8) // LONG_EMERGENCY_IMPACT
+        if (max_deceleration < -9.81) // LONG_EMERGENCY_IMPACT
         {
-            RCLCPP_ERROR(this->get_logger(), "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_acceleration);
+            RCLCPP_ERROR(this->get_logger(), "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_deceleration);
             scenario_msg.current_scenario = "LONG_EMERGENCY_IMPACT";
         }
-        else if (max_acceleration > m_emergency_threshold_) // LONG_EMERGENCY_AVOID
+        else if (max_deceleration < m_emergency_threshold_) // LONG_EMERGENCY_AVOID
         {
-            RCLCPP_ERROR(this->get_logger(), "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_acceleration);
+            RCLCPP_ERROR(this->get_logger(), "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_deceleration);
             scenario_msg.current_scenario = "LONG_EMERGENCY_AVOID";
         }
-        else if (max_acceleration > m_warning_threshold_) // WARNING
+        else if (max_deceleration < m_warning_threshold_) // WARNING
         {
-            RCLCPP_INFO(this->get_logger(), "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_acceleration);
+            RCLCPP_INFO(this->get_logger(), "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_deceleration);
             scenario_msg.current_scenario = "WARNING";
         }
         else // NO_ACTION

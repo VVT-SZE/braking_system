@@ -37,6 +37,7 @@ namespace brakingSystem
         geometry_msgs::msg::Accel m_ego_accel_;
         float m_ego_heading_;
         double m_critical_distance_{50.0};
+        double m_safety_distance_{5.0};
         double m_warning_threshold_{1.5};
         double m_emergency_threshold_{2.5};
 

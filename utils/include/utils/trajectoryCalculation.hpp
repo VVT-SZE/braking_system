@@ -30,13 +30,7 @@ namespace brakingSystem
             double criticalObject_aX,
             double egoObject_vX,
             double egoObject_aX);
-            
-    private:
-        const int N = 50; 
-        double safety_distance_;
-        double max_velocity;
-        std::vector<std::vector<double>> inv(std::vector<std::vector<double>> mat);
-        std::vector<std::vector<double>> mxMul(std::vector<std::vector<double>> mxA, std::vector<std::vector<double>> mxB);
+
         std::vector<double> calculateCoefficients(
             double criticalObject_X,
             double criticalObject_vX,
@@ -44,6 +38,14 @@ namespace brakingSystem
             double egoObject_vX,
             double egoObject_aX
         );
+            
+    private:
+        const int N = 50; 
+        double safety_distance_;
+        double max_velocity;
+        std::vector<std::vector<double>> inv(std::vector<std::vector<double>> mat);
+        std::vector<std::vector<double>> mxMul(std::vector<std::vector<double>> mxA, std::vector<std::vector<double>> mxB);
+
         double calcTc(
             double criticalObject_X, 
             double criticalObject_vX, 

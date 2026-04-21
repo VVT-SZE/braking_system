@@ -29,6 +29,7 @@ class CtrlLongEmergency : public rclcpp::Node
         rclcpp::TimerBase::SharedPtr m_timer_;
 
         double m_egoSpeed = 0.0;
+        double m_delay_time = 0.03;
     };
 
 } // namespace CtrlLongEmergency

@@ -1,4 +1,0 @@
-/plan_long_emergency:
-    ros__parameters:
-        publish_rate: 50 # hz
-        safety_distance: 3.0 # meter

@@ -6,14 +6,20 @@ brakingSystem::CtrlLongEmergency ::CtrlLongEmergency () : Node("ctrl_long_emerge
     this->declare_parameter<std::string>("input_topic_trajectory", "plan/longEmergency/trajectory");
     this->declare_parameter<std::string>("output_topic_control", "control/command/control_cmd");
     this->declare_parameter<bool>("debug_enabled", false);
+    this->declare_parameter<int>("publish_rate", 20);
+    this->declare_parameter<double>("m_delay_time", 0.03);
 
     std::string inputTopicEgo;
     std::string inputTopicTrajectory;
     std::string outputTopicControl;
+    int publish_rate;
+    double m_delay_time;
 
     this->get_parameter("input_topic_ego", inputTopicEgo);
     this->get_parameter("input_topic_trajectory", inputTopicTrajectory);
     this->get_parameter("output_topic_control", outputTopicControl);
+    this->get_parameter("publish_rate", publish_rate);
+    this->get_parameter("m_delay_time", m_delay_time);
 
     m_subEgo_ = this->create_subscription<crp_msgs::msg::Ego>(
         inputTopicEgo,
@@ -29,7 +35,7 @@ brakingSystem::CtrlLongEmergency ::CtrlLongEmergency () : Node("ctrl_long_emerge
         outputTopicControl,
         1);
 
-    m_timer_ = this->create_wall_timer(std::chrono::milliseconds(20), std::bind(&brakingSystem::CtrlLongEmergency::run, this));
+    m_timer_ = this->create_wall_timer(std::chrono::milliseconds(publish_rate), std::bind(&brakingSystem::CtrlLongEmergency::run, this));
 
     RCLCPP_INFO(this->get_logger(), "ctrl_long_emergency node has been started");
 }
@@ -46,7 +52,7 @@ void brakingSystem::CtrlLongEmergency::trajectoryCallback(
         m_control_msg.longitudinal.velocity = m_egoSpeed;
         return;
     }
-    int point_index = std::min(static_cast<int>(msg->points.size()) - 1, 3); // előretekintési táv 0.03
+    int point_index = std::min(static_cast<int>(msg->points.size()) - 1, static_cast<int>(m_delay_time * 100));
     float target_velocity = msg->points.at(point_index).longitudinal_velocity_mps;
 
     RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 500,

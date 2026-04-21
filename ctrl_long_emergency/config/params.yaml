@@ -1,3 +1,4 @@
-/behavior_planner:
+/ctrl_long_emergency:
     ros__parameters:
-        publish_rate: 50 # hz
+        publish_rate: 20 # ms
+        delay_time: 0.03 # s -> 60ms

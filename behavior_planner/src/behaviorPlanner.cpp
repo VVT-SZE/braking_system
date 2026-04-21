@@ -141,20 +141,23 @@ void brakingSystem::BehaviorPlanner::run()
         {
             RCLCPP_ERROR(this->get_logger(), "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_deceleration);
             scenario_msg.current_scenario = "LONG_EMERGENCY_IMPACT";
+            m_highest_strategy_ = "LONG_EMERGENCY_IMPACT";
         }
-        else if (max_deceleration < m_emergency_threshold_) // LONG_EMERGENCY_AVOID
+        else if (max_deceleration < m_emergency_threshold_ && (m_highest_strategy_ == "NO_ACTION" || m_highest_strategy_ == "WARNING")) // LONG_EMERGENCY_AVOID
         {
             RCLCPP_ERROR(this->get_logger(), "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_deceleration);
             scenario_msg.current_scenario = "LONG_EMERGENCY_AVOID";
+            m_highest_strategy_ = "LONG_EMERGENCY_AVOID";
         }
-        else if (max_deceleration < m_warning_threshold_) // WARNING
+        else if (max_deceleration < m_warning_threshold_ && m_highest_strategy_ == "NO_ACTION") // WARNING
         {
             RCLCPP_INFO(this->get_logger(), "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_deceleration);
             scenario_msg.current_scenario = "WARNING";
+            m_highest_strategy_ = "WARNING";
         }
         else // NO_ACTION
         {
-            scenario_msg.current_scenario = "NO_ACTION";
+            scenario_msg.current_scenario = m_highest_strategy_;
         }
 
         if (scenario_msg.current_scenario != "NO_ACTION")

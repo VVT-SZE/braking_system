@@ -124,10 +124,9 @@ void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::Targ
             obj_x,
             obj_v,
             obj_a,
-            ego_v,
+            ego_v - 0.02*5.0,
             ego_a);
-
-
+            
             // jerk and acceloration limit check
             /*double max_acc = trajectoryCalculator->getMaximumTrajectoryAcceleration(obj_x, obj_v, obj_a, ego_v, ego_a);
             double max_jerk = trajectoryCalculator->getMaximumTrajectoryJerk(obj_x, obj_v, obj_a, ego_v, ego_a);

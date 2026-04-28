@@ -52,8 +52,12 @@ void brakingSystem::CtrlLongEmergency::trajectoryCallback(
         m_control_msg.longitudinal.velocity = m_egoSpeed;
         return;
     }
-    int point_index = std::min(static_cast<int>(msg->points.size()) - 1, static_cast<int>(m_delay_time * 100));
+    int point_index = std::min(static_cast<int>(msg->points.size()) - 1, static_cast<int>(25));
     float target_velocity = msg->points.at(point_index).longitudinal_velocity_mps;
+    if (target_velocity < 0.5)
+    {
+        target_velocity = 0.0f;
+    }
     //target_velocity = std::min(0.0f, target_velocity);
 
     RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 500,

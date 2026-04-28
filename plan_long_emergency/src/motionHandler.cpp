@@ -6,7 +6,7 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
     this->declare_parameter<std::string>("input_topic_scenario", "plan/strategy");
     this->declare_parameter<std::string>("input_topic_target_space", "plan/target_space");
     this->declare_parameter<std::string>("output_topic_trajectory", "plan/longEmergency/trajectory");
-    this->declare_parameter<double>("safety_distance", 5.0);
+    this->declare_parameter<double>("safety_distance", 3.0);
 
     std::string inputTopicEgo, inputTopicScenario, inputTopicTargetSpace, outputTopicTrajectory;
     double safety_distance;

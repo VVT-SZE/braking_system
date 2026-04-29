@@ -33,6 +33,11 @@ namespace brakingSystem
         std::string m_current_scenario_;
         double m_current_velocity_;
         double m_current_acceleration_;
+
+        bool m_replanning_needed_{true};
+        double m_planning_distance_{0.0f};
+
+        std::vector<std::vector<double>> m_trajectory;
     };
 
 } // namespace brakingSystem

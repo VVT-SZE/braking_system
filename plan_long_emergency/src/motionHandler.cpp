@@ -6,7 +6,7 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
     this->declare_parameter<std::string>("input_topic_scenario", "plan/strategy");
     this->declare_parameter<std::string>("input_topic_target_space", "plan/target_space");
     this->declare_parameter<std::string>("output_topic_trajectory", "plan/longEmergency/trajectory");
-    this->declare_parameter<double>("safety_distance", 3.0);
+    this->declare_parameter<double>("safety_distance", 7.7);
 
     std::string inputTopicEgo, inputTopicScenario, inputTopicTargetSpace, outputTopicTrajectory;
     double safety_distance;
@@ -96,84 +96,73 @@ void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::Targ
             traj.points.push_back(tp);
         }
 
+        m_replanning_needed_ = false;
+        m_planning_distance_ = 0.0f;
+
         m_pubTrajectory_->publish(traj);
         return;
     }
             
-    // getting information about the object from BP
-    const auto &obj = msg->relevant_objects[0];
-
-    double obj_x = msg->target_pose.pose.position.x;
-    double obj_y = msg->target_pose.pose.position.y;
-
-    double obj_v = obj.kinematics.initial_twist_with_covariance.twist.linear.x;
-    double obj_a = obj.kinematics.initial_acceleration_with_covariance.accel.linear.x;
-
-    if (std::abs(obj_v) < 0.001) obj_v = 0.0;
-    if (std::abs(obj_a) < 0.001) obj_a = 0.0;
-
-    RCLCPP_INFO(this->get_logger(), "Object at X: %f, Y: %f", obj_x, obj_y);
-
-
-    // calculating real trajectory with the math from utils
-    std::vector<std::vector<double>> trajectory;
-
     if (is_emergency)
     {
-        trajectory = trajectoryCalculator->calcTrajectory(
-            obj_x,
-            obj_v,
-            obj_a,
-            ego_v - 0.02*5.0,
-            ego_a);
-            
-            // jerk and acceloration limit check
-            /*double max_acc = trajectoryCalculator->getMaximumTrajectoryAcceleration(obj_x, obj_v, obj_a, ego_v, ego_a);
-            double max_jerk = trajectoryCalculator->getMaximumTrajectoryJerk(obj_x, obj_v, obj_a, ego_v, ego_a);
+        if (m_replanning_needed_)
+        {
+            // getting information about the object from BP
+            const auto &obj = msg->relevant_objects[0];
 
-            constexpr double ACC_LIMIT = 3.0;
-            constexpr double JERK_LIMIT = 5.0;
+            double obj_x = msg->target_pose.pose.position.x;
+            double obj_y = msg->target_pose.pose.position.y;
 
-            double acc_scale = ACC_LIMIT / std::max(max_acc, 1e-6);
-            double jerk_scale = JERK_LIMIT / std::max(max_jerk, 1e-6);
+            double obj_v = obj.kinematics.initial_twist_with_covariance.twist.linear.x;
+            double obj_a = obj.kinematics.initial_acceleration_with_covariance.accel.linear.x;
 
-            double scale = std::min(1.0, std::min(acc_scale, jerk_scale));
+            if (std::abs(obj_v) < 0.001) obj_v = 0.0;
+            if (std::abs(obj_a) < 0.001) obj_a = 0.0;
 
-            if (scale < 1.0)
-            {
-                RCLCPP_WARN(this->get_logger(),
-                    "Soft limit applied. Scale: %.2f (acc: %.2f, jerk: %.2f)",
-                    scale, max_acc, max_jerk);
+            RCLCPP_INFO(this->get_logger(), "Object at X: %f, Y: %f", obj_x, obj_y);
 
-                for (auto &p : trajectory)
-                {
-                    p[2] *= scale;  // velocity scaling
-                }
-            }*/
-    
+            m_trajectory = trajectoryCalculator->calcTrajectory(
+                obj_x,
+                obj_v,
+                obj_a,
+                ego_v,
+                ego_a);   
+                m_replanning_needed_ = false;
+                m_planning_distance_ = 0.0f;
+        }
+        else{
+            // integrating planning distance - until object is reached
+            m_planning_distance_ = m_planning_distance_ + 0.02f * ego_v;
+        }
+
     } 
     else 
     {   
         // normal advance
-        trajectory = {
+        m_trajectory = {
         {0.0, 0.0, ego_v},
         {1.0, 0.0, ego_v}
-        };          
+        }; 
+        m_replanning_needed_ = true;
+        m_planning_distance_ = 0.0f;         
     }
 
     // convert to ros message
     autoware_planning_msgs::msg::Trajectory trajectory_msg;
     trajectory_msg.header = msg->header;
 
-    for (const auto &p : trajectory)
+    for (const auto &p : m_trajectory)
     {
         autoware_planning_msgs::msg::TrajectoryPoint tp;
 
-        tp.pose.position.x = p[0];
-        tp.pose.position.y = p[1];
-        tp.longitudinal_velocity_mps = p[2];
+        if (p[0] >= m_planning_distance_)
+        {
+            tp.pose.position.x = p[0] - m_planning_distance_;
+            tp.pose.position.y = p[1];
+            tp.longitudinal_velocity_mps = p[2];
 
-        trajectory_msg.points.push_back(tp);
+            trajectory_msg.points.push_back(tp);
+        }        
     }
 
     // publish trajectory

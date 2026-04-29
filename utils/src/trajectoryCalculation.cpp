@@ -116,7 +116,7 @@ namespace brakingSystem
         double egoObject_vX,
         double egoObject_aX)
     {
-        double x_tar = criticalObject_X - safety_distance_;
+        double x_tar = criticalObject_X - 7.7;
         double dv = egoObject_vX - criticalObject_vX;
         
         double v_mean = dv / 2.0;

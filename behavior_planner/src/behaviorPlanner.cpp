@@ -8,7 +8,7 @@ brakingSystem::BehaviorPlanner::BehaviorPlanner() : Node("behavior_planner")
     this->declare_parameter<std::string>("output_topic_target_space", "plan/target_space");
     this->declare_parameter<bool>("debug_enabled", false);
     this->declare_parameter<double>("critical_distance", 50.0);
-    this->declare_parameter<double>("safety_distance", 6.0);
+    this->declare_parameter<double>("safety_distance", 7.7);
     this->declare_parameter<double>("publish_rate", 50.0);
     this->declare_parameter<double>("warning_threshold", -1.5);
     this->declare_parameter<double>("emergency_threshold", -2.5);

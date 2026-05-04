@@ -12,7 +12,7 @@ def generate_launch_description():
     # Declare global safety_distance parameter
     safety_distance_arg = DeclareLaunchArgument(
         "safety_distance",
-        default_value="5.0",
+        default_value="10.0",
         description="Global safety distance parameter in meters"
     )
 

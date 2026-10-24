@@ -1,0 +1,29 @@
+perception_node:
+  ros__parameters:
+    # TBD - cseréld a tényleges topicra (spec.md nyitott kérdés #1, 1.8-as task)
+    lidar_topic: "/luminar_pcl"
+    # ODOM NINCS ITT: a perception_node most CSAK LiDAR-t használ. Az odom
+    # (ego-motion kompenzáció a sweep-pufferben + abszolút sebesség a
+    # kimeneten) ki van véve, mert a LiDAR-sweep és odom-minta
+    # timestamp-szinkronizációja még nincs megépítve. Lásd
+    # aeb_perception/perception_node.py docstring.
+    output_topic: "/perception/detections"
+    base_frame: "base_link"
+
+    # Állítsd a tényleges elérési útra - lehet ugyanaz a gép (Windows+WSL2 /
+    # külön Linux doboz GPU-val), amin a notebookot futtattad.
+    model_config: "/workspace/mmdetection3d/configs/centerpoint/centerpoint_pillar02_second_secfpn_head-circlenms_8xb4-cyclic-20e_nus-3d.py"
+    checkpoint: "/workspace/mmdetection3d/checkpoints/centerpoint_pillar02_nuscenes.pth"
+
+    device: "cuda:0"   # "cpu", ha ezen a gépen nincs GPU
+    score_threshold: 0.3
+    num_sweeps: 10
+
+adapter_node:
+  ros__parameters:
+    detections_topic: "/perception/detections"
+    odom_topic: "/novatel/oem7/odom"
+    # A behavior_planner tényleges default bemeneti topicjai - a
+    # braking_system forrásából (behaviorPlanner.cpp) megerősítve, nem TBD.
+    scenario_topic: "scenario"
+    ego_topic: "ego"

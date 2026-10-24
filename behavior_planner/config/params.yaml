@@ -1,4 +1,4 @@
-/**:
+/behavior_planner:
     ros__parameters:
         publish_rate: 50.0 # hz
         critical_distance: 200.0 # meters

@@ -40,6 +40,7 @@ namespace brakingSystem
         double m_safety_distance_{5.0};
         double m_warning_threshold_{1.5};
         double m_emergency_threshold_{2.5};
+        std::string m_highest_strategy_ = "NO_ACTION";
 
         std::unique_ptr<TrajectoryCalculation> m_trajectory_calculator_;
     };

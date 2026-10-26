@@ -1,4 +1,4 @@
-perception_node:
+aeb_perception_node:
   ros__parameters:
     # TBD - cseréld a tényleges topicra (spec.md nyitott kérdés #1, 1.8-as task)
     lidar_topic: "/luminar_pcl"
@@ -8,18 +8,18 @@ perception_node:
     # timestamp-szinkronizációja még nincs megépítve. Lásd
     # aeb_perception/perception_node.py docstring.
     output_topic: "/perception/detections"
-    base_frame: "base_link"
+    base_frame: "lexus3/base_link"
 
     # Állítsd a tényleges elérési útra - lehet ugyanaz a gép (Windows+WSL2 /
     # külön Linux doboz GPU-val), amin a notebookot futtattad.
-    model_config: "~/mmdetection3d/configs/centerpoint/centerpoint_pillar02_second_secfpn_head-circlenms_8xb4-cyclic-20e_nus-3d.py"
-    checkpoint: "~/mmdetection3d/checkpoints/centerpoint_pillar02_nuscenes.pth"
+    model_config: "/home/beni0900/mmdetection3d/configs/centerpoint/centerpoint_pillar02_second_secfpn_head-circlenms_8xb4-cyclic-20e_nus-3d.py"
+    checkpoint: "/home/beni0900/mmdetection3d/checkpoints/centerpoint_pillar02_nuscenes.pth"
 
     device: "cuda:0"   # "cpu", ha ezen a gépen nincs GPU
     score_threshold: 0.3
     num_sweeps: 10
 
-adapter_node:
+aeb_adapter_node:
   ros__parameters:
     detections_topic: "/perception/detections"
     odom_topic: "/novatel/oem7/odom"

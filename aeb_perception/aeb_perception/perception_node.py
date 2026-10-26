@@ -133,10 +133,19 @@ class PerceptionNode(Node):
 
     @staticmethod
     def _extract_points(msg: PointCloud2) -> np.ndarray:
-        points = point_cloud2.read_points_numpy(
-            msg, field_names=("x", "y", "z", "intensity")
+        structured = point_cloud2.read_points(
+            msg, field_names=("x", "y", "z", "intensity"), skip_nans=True
         )
-        return points.astype(np.float32)
+        points = np.stack(
+            [
+                structured["x"].astype(np.float32),
+                structured["y"].astype(np.float32),
+                structured["z"].astype(np.float32),
+                structured["intensity"].astype(np.float32),
+            ],
+            axis=-1,
+        )
+        return points
 
     def _transform_to_base_link(self, points: np.ndarray, header) -> np.ndarray:
         if header.frame_id == self._base_frame:

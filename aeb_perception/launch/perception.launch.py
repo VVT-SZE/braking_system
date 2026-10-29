@@ -33,5 +33,12 @@ def generate_launch_description():
                 parameters=[LaunchConfiguration("params_file")],
                 output="screen",
             ),
+            Node(
+                package="aeb_perception",
+                executable="detection_visualizer",
+                name="aeb_detection_visualizer",
+                parameters=[LaunchConfiguration("params_file")],
+                output="screen",
+            ),
         ]
     )

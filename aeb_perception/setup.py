@@ -26,6 +26,7 @@ setup(
         "console_scripts": [
             "perception_node = aeb_perception.perception_node:main",
             "adapter_node = aeb_perception.adapter_node:main",
+	    "detection_visualizer = aeb_perception.detection_visualizer:main",
         ],
     },
 )

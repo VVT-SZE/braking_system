@@ -18,6 +18,7 @@
   <depend>tf2_ros</depend>
   <depend>autoware_perception_msgs</depend>
   <depend>crp_msgs</depend>
+  <depend>visualization_msgs</depend>
   <!-- A crp_msgs csomag FORRÁSA nincs a braking_system repóban - csak
        find_package(crp_msgs REQUIRED) van benne. Valahol a ti ROS2
        workspace-etekben (vagy a tanári infrastruktúrában) már léteznie

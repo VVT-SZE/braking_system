@@ -153,3 +153,114 @@ is tenni, hogy lássa ugyanazt a `crp_msgs`-t.
   (determinisztikus tesztesetek) és 2.10-es (bag-replay összevetés
   offline vs. élő) task, amivel ki lehet deríteni, hol hibázik a lánc,
   mielőtt RViz-ben keresnéd.
+
+## 7. 2026-10-29 javítások: miért "működött szarul" és mit csináltam
+
+A `bags/` alatt lévő valódi felvételeken (`kocka_car_attack_20261007.mcap`
+stb.) direktben lefuttattam a teljes láncot (TF a bag `/tf_static`-jából,
+`CenterPointWrapper.infer` a tényleges checkpointtal, GPU-n) a fő node
+elindítása nélkül, hogy lássam pontosan mi megy be/ki minden lépésnél. Két
+konkrét, mérhető okot találtam arra, hogy a régi kód gyakorlatilag soha nem
+publikált semmit, plusz egy sebességi problémát, ami a "nincs szinkronban"
+panaszt okozza:
+
+**a) Sebesség/lemaradás ("nincs szinkronban a pontfelhővel")** - a
+`perception_node` minden egyes beérkező `luminar_pcl` sweepre a TELJES
+10-sweepes puffert (sweep-enként ~81 000 pont, azaz ~810 000 pontot)
+újra lefuttatta a modellen, **mérve kb. 1.4-4 másodpercet GPU-n**, miközben
+a LiDAR ~10 Hz-cel (0.1s-enként) küld új sweepet. Az `rclpy` alap QoS-e
+(`depth=10`, `RELIABLE`) miatt ez egyre nagyobb, folyamatosan növekvő
+feldolgozási lemaradást okozott - innen a panasz, hogy a kirajzolt
+detekciók nem a pillanatnyi pontfelhőhöz tartoznak. Két változás kellett:
+  - **`point_cloud_range`-vágás** a sweep-pufferbe kerülés előtt
+    (`preprocessing.py` `SweepBuffer._crop_to_range`) - a luminar_pcl
+    360°-ban akár 200+ méterig lát, de a checkpoint ±51.2 m-en kívül
+    semmit nem tud kezdeni a pontokkal (a voxelizáló réteg ezeket amúgy is
+    csendben eldobta volna, csak már feleslegesen átmentek a teljes
+    pillar-pipeline-on).
+  - **`num_sweeps` 10-ről 5-re** - a checkpoint nuScenes 20 Hz-es LiDAR-ra
+    van hangolva (10 sweep ≈ 0.5s előzmény), a luminar_pcl itt ~10 Hz,
+    tehát 10 sweep itt ~1.0s-ot jelentett volna (kétszer kívül a tanítási
+    dt-tartományon).
+  - Együtt: **~1.4s -> ~0.35s/sweep** (ugyanazon a GPU-n, mérve). Ez még
+    nem reál-idejű a 10 Hz-es bemenethez, de nem nő tovább a lemaradás.
+  - **A LiDAR-feliratkozás QoS-e `depth=1`-re állítva** - ha a feldolgozás
+    lassabb, mint a sweepek érkezése, NE gyűljön fel a sor (amitől a
+    lemaradás folyamatosan nőne), hanem mindig a legfrissebb elérhető
+    sweepen dolgozzon, a közbeeső, fel nem dolgozott sweepeket dobja el.
+
+**b) A modell gyakorlatilag soha nem talált 'car'-t** - a `kocka_*` bagek
+teszt-scene-jein a nyers (score-szűrés előtti) detekciók közt a `score`
+tipikusan 0.3 alatt volt, és a `car` osztály (label 0) egyszer sem jelent
+meg a top prediction-ök közt az eredeti (10 sweep, vágás nélküli)
+beállítással - a `build_detected_objects` car-only szűrője (szándékosan,
+lásd 6. szekció) ezért mindent eldobott, NÉMÁN (nem volt log arról, hány
+nyers detekciót dobott el). Ennek egy konkrét, mérhető oka volt: a
+luminar_pcl `intensity` mezője ezeken a bageken kb. **0-2 közötti**
+(UINT8 PointField, de a driver ebben a szűk tartományban publikál), míg a
+checkpoint a nuScenes natív **0-255-ös** intensity-skálájára van
+kalibrálva. Hozzáadtam egy `intensity_scale` paramétert
+(`perception_node.py` `_extract_points`, alapérték a kódban 1.0, de a
+`config/params.yaml`-ban **100.0**-ra állítva) - ezzel a 2 tesztelt bagen
+a top raw score kb. 0.3-0.4-ről 0.5-0.67-re nőtt, ÉS megjelentek 'car'
+osztályú találatok is a nyers predikciók közt, ahol előtte egy sem volt.
+**Ez NEM teljes validáció** (2 rövid bag, nincs ground truth) - ha más
+felvételeken ez rosszabbnak bizonyulna (pl. több fals pozitív), hangoljátok
+vissza a `config/params.yaml`-ban.
+
+Logolás is bővült: minden feldolgozott sweepnél kimegy
+(`throttle_duration_sec=2.0`), hány pont ment a modellbe, mennyi ideig
+tartott a feldolgozás, hány NYERS detekció volt, és ebből hány lett
+publikálva (score_threshold + car-only szűrés után) - ezzel a jövőben nem
+kell vakon tippelni, hogy "nem lát semmit" vagy "lát valamit, csak kiszűri".
+
+### 2026-10-29 javítások, 2. kör: "végig ott van előttem egy autó és nem detektálja"
+
+Az első kör javítása után élesben lefuttatva a `kocka_full_20261007.mcap`
+felvételen (ahol a célautó TÉNYLEGESEN mozog, nem csak áll) kiderült: az
+első pár frame-en helyesen 'car'-nak classifikált, majd onnantól hosszú
+szakaszokon keresztül 'truck'/'bus'-nak. Lefuttatva a láncot direktben
+(score_threshold=0.3, car-only szűrés, 80 egymást követő valódi frame)
+kiderült a konkrét ok: a doboz hossza 4.5m-ről (helyes, szedán alakú)
+**11-13m-re ugrott**, amint a célautó elkezdett mozogni - ez a
+preprocessing.py-ban már dokumentált "nincs ego-motion-kompenzáció"
+hiányosság egy SÚLYOSABB, eddig nem vizsgált változata: nem csak az EGO
+mozgása keni el a sweepeket, hanem a MOZGÓ CÉLOBJEKTUM sajátja is - 5
+sweepen (~0.5s) át egyszerűen egymásra pakolva az ő pontjai is szétkenődnek
+a mozgás útja mentén, a modell egy valóságosnál jóval nagyobb dobozt lát,
+és ez átviszi az osztályozást autóról teherautóra/buszra.
+
+Mérve (ugyanazon 80 frame-en, car-only szűrés mellett, hány frame-ben
+maradt volna 'car' a kimeneten):
+
+| num_sweeps | 'car' marad |
+|---|---|
+| 5 (1. kör alapértéke) | 24/80 (30%) |
+| 3 | 40/80 (50%) |
+| **2 (jelenlegi alapérték)** | **77/80 (96%)** |
+| 1 | 80/80 (100%, de nulla dt-infó a sebességbecsléshez) |
+
+`num_sweeps` 5-ről **2**-re csökkentve (lásd `config/params.yaml` és
+`perception_node.py` megjegyzése) - majdnem olyan osztályozás-stabil, mint
+1 sweep, de legalább egy dt-mérés megmarad a sebességbecsléshez. Ha a
+sebesség-kimenetet egyelőre nem használjátok (az ego-kompenzáció sem kész,
+lásd lentebb), érdemes lehet 1-re próbálni a saját bagjeiteken.
+
+**FONTOS, ezt NEM oldja meg az odom-alapú ego-motion-kompenzáció** (a
+4-5. szekcióban már korábban is nyitva hagyott feladat): az csak az EGO
+saját mozgására korrigálna, a célobjektum SAJÁT sebességére nem - ahhoz a
+célobjektum sebességét kellene sweepek közt becsülni/kompenzálni, ami
+lényegében egy tracker, jóval nagyobb feladat. Amíg ilyen nincs, az
+alacsony `num_sweeps` a pragmatikus kompromisszum.
+
+**Amit ez a kör NEM old meg** (tudatosan, a csapat döntése alapján):
+- A kimeneti osztályszűrés MARADT car-only (lásd 6. szekció, M1 scope) -
+  a `kocka` teszttárgy és bármi más (gyalogos, kerékpáros stb.) szándékosan
+  nem kerül ki a `DetectedObjects`-be, csak logolva van, hogy mennyi nyers
+  találatot dobtunk el emiatt.
+- Az **ego-motion-kompenzáció és az odom-szinkron** (3-4. szekció, "LiDAR-
+  only egyszerűsítés") továbbra is hiányzik - ez egy MÁSIK "szinkron"
+  probléma (a sweep-puffer nem igazítja egymáshoz a sweepeket ego-mozgás
+  szerint), nem azonos a fent javított wall-clock lemaradással. Ha ez is
+  kell, az a `message_filters.ApproximateTimeSynchronizer` hozzáadása a
+  `perception_node`-hoz, ami még nincs megépítve.

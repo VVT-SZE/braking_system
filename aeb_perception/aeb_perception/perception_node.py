@@ -33,11 +33,14 @@ odom-mintát ragasztja a jelen LiDAR-sweephez.
 Paraméterek (lásd config/params.yaml): lidar_topic, output_topic,
 base_frame, model_config, checkpoint, device, score_threshold, num_sweeps.
 """
+import time
+
 import numpy as np
 import rclpy
 from autoware_perception_msgs.msg import DetectedObjects
 from geometry_msgs.msg import TransformStamped
 from rclpy.node import Node
+from rclpy.qos import QoSProfile
 from sensor_msgs.msg import PointCloud2
 from sensor_msgs_py import point_cloud2
 from tf2_ros import Buffer, TransformListener
@@ -55,17 +58,50 @@ class PerceptionNode(Node):
         # topicot a csapatnak el kell döntenie (1.8-as task).
         self.declare_parameter("lidar_topic", "/luminar_pcl")
         self.declare_parameter("output_topic", "/perception/detections")
-        self.declare_parameter("base_frame", "base_link")
+        # FONTOS: a valódi járművön a statikus TF-fában ("lexus3/base_link
+        # -> /luminar_lidar_0", lásd a felvett bagek /tf_static-ja) csak a
+        # "lexus3/base_link" létezik - a namespace nélküli "base_link"
+        # SEHOL nincs tényleges TF-ként broadcastolva (más node-ok csak
+        # header.frame_id "base_link" LABEL-ként használják, anélkül, hogy
+        # valódi transzformot publikálnának hozzá). Ha ez a paraméter
+        # params-fájl nélkül futna "base_link"-kel, a TF-lookup minden
+        # egyetlen sweepnél elhasalna, és a node csendben sosem publikálna
+        # semmit (pontosan ez a hiba derült ki a javítás közben végzett
+        # integrációs teszten) - ezért az alapérték itt már a valódi,
+        # a params.yaml-ban is használt "lexus3/base_link".
+        self.declare_parameter("base_frame", "lexus3/base_link")
         self.declare_parameter("model_config", "")
         self.declare_parameter("checkpoint", "")
         self.declare_parameter("device", "cuda:0")
         self.declare_parameter("score_threshold", 0.3)
-        self.declare_parameter("num_sweeps", 10)
+        # 2026-10-29: 10-ről 2-re csökkentve - lásd config/params.yaml
+        # megjegyzése, ez NEM csak a dt-tartomány miatt van, hanem egy
+        # súlyosabb okból: mozgó célobjektumnál (nem csak ego-mozgásnál) a
+        # sweepek egyszerű egymásra-pakolása a doboz MÉRETÉT torzítja fel,
+        # ami elrontja az osztályozást ('car' -> 'truck'/'bus').
+        self.declare_parameter("num_sweeps", 2)
+        # (x_min, y_min, z_min, x_max, y_max, z_max) - a modell saját
+        # point_cloud_range-ével kell megegyezzen (lásd config/params.yaml
+        # megjegyzése és preprocessing.py). Az alapérték a jelenlegi
+        # centerpoint_pillar02_nuscenes checkpoint tanítási tartománya - ha
+        # másik checkpointra váltotok, írjátok át a params.yaml-ban. Üres
+        # lista = nincs vágás (NEM ajánlott, lásd a fenti megjegyzést a
+        # mért lassulásról).
+        self.declare_parameter(
+            "point_cloud_range", [-51.2, -51.2, -5.0, 51.2, 51.2, 3.0]
+        )
+        # A valódi LiDAR intensity-skálája eltérhet attól, amire a checkpoint
+        # tanítva van (lásd config/params.yaml megjegyzése) - 1.0 = nincs
+        # skálázás.
+        self.declare_parameter("intensity_scale", 1.0)
 
         lidar_topic = self.get_parameter("lidar_topic").value
         self._output_topic = self.get_parameter("output_topic").value
         self._base_frame = self.get_parameter("base_frame").value
         self._score_threshold = self.get_parameter("score_threshold").value
+        self._intensity_scale = float(self.get_parameter("intensity_scale").value)
+        point_cloud_range = self.get_parameter("point_cloud_range").value
+        point_cloud_range = tuple(point_cloud_range) if point_cloud_range else None
 
         model_config = self.get_parameter("model_config").value
         checkpoint = self.get_parameter("checkpoint").value
@@ -84,18 +120,26 @@ class PerceptionNode(Node):
         )
 
         self._sweep_buffer = SweepBuffer(
-            max_sweeps=self.get_parameter("num_sweeps").value
+            max_sweeps=self.get_parameter("num_sweeps").value,
+            point_cloud_range=point_cloud_range,
         )
 
         self._tf_buffer = Buffer()
         self._tf_listener = TransformListener(self._tf_buffer, self)
 
         self._publisher = self.create_publisher(DetectedObjects, self._output_topic, 10)
-        self.create_subscription(PointCloud2, lidar_topic, self._on_pointcloud, 10)
+        # KEEP_LAST, depth=1: ha az inferencia lassabb, mint a LiDAR-sweepek
+        # érkezési üteme, NE gyűljön fel a feldolgozatlan üzenetek sora (ami
+        # folyamatosan növekvő késést/eltolódást okozna a pontfelhő és a
+        # kirajzolt detekciók között - "nincs szinkronban" panasz) - inkább
+        # mindig a legfrissebb sweepen dolgozzon, a régebbit dobja el.
+        lidar_qos = QoSProfile(depth=1)
+        self.create_subscription(PointCloud2, lidar_topic, self._on_pointcloud, lidar_qos)
 
         self.get_logger().info(
             f"Feliratkozva: {lidar_topic} (LiDAR, odom NINCS használva). "
-            f"Kimenet: {self._output_topic}."
+            f"Kimenet: {self._output_topic}. "
+            f"point_cloud_range={point_cloud_range}, intensity_scale={self._intensity_scale}."
         )
 
     def _on_pointcloud(self, msg: PointCloud2) -> None:
@@ -103,6 +147,7 @@ class PerceptionNode(Node):
         # pontfelhő MÉRÉSÉNEK ideje, nem az inferencia befejezésének
         # ideje (spec.md 3. szekció, header.stamp sor).
         stamp = msg.header.stamp
+        t_start = time.monotonic()
 
         try:
             points_sensor = self._extract_points(msg)
@@ -120,6 +165,7 @@ class PerceptionNode(Node):
 
         model_input = self._sweep_buffer.build_model_input()
         pred_instances_3d = self._model.infer(model_input)
+        raw_count = int(pred_instances_3d.scores_3d.shape[0])
 
         header = msg.header
         header.frame_id = self._base_frame
@@ -131,17 +177,34 @@ class PerceptionNode(Node):
         )
         self._publisher.publish(detections)
 
-    @staticmethod
-    def _extract_points(msg: PointCloud2) -> np.ndarray:
+        elapsed = time.monotonic() - t_start
+        # Ha ez tartósan hosszabb, mint a LiDAR-sweepek közötti idő, a
+        # detekciók folyamatosan egyre jobban le fognak maradni a pontfelhő
+        # mögött ("nincs szinkronban" panasz) - ez a szám azt mutatja meg,
+        # mennyire vagyunk ettől távol.
+        self.get_logger().info(
+            f"{model_input.shape[0]} pont a modellbemenetben, feldolgozás {elapsed:.3f}s, "
+            f"{raw_count} nyers detekció -> {len(detections.objects)} publikálva "
+            f"(score_threshold={self._score_threshold}, csak 'car' osztály kerül ki).",
+            throttle_duration_sec=2.0,
+        )
+
+    def _extract_points(self, msg: PointCloud2) -> np.ndarray:
         structured = point_cloud2.read_points(
             msg, field_names=("x", "y", "z", "intensity"), skip_nans=True
         )
+        intensity = structured["intensity"].astype(np.float32)
+        if self._intensity_scale != 1.0:
+            # Lásd config/params.yaml `intensity_scale` megjegyzése - a
+            # checkpoint nuScenes 0-255-ös intensity-skálájához van
+            # kalibrálva, a valódi LiDAR ettől eltérő tartományban publikál.
+            intensity = np.clip(intensity * self._intensity_scale, 0.0, 255.0)
         points = np.stack(
             [
                 structured["x"].astype(np.float32),
                 structured["y"].astype(np.float32),
                 structured["z"].astype(np.float32),
-                structured["intensity"].astype(np.float32),
+                intensity,
             ],
             axis=-1,
         )

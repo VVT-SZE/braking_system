@@ -17,7 +17,65 @@ aeb_perception_node:
 
     device: "cuda:0"   # "cpu", ha ezen a gépen nincs GPU
     score_threshold: 0.3
-    num_sweeps: 10
+
+    # A nuScenes CenterPoint checkpoint pontosan ezzel a point_cloud_range-el
+    # (és 0.2m pillar-mérettel) lett tanítva (lásd a config fájlt:
+    # model.data_preprocessor.voxel_layer / point_cloud_range) - a voxelizáló
+    # réteg ezen a tartományon KÍVÜLI pontokat amúgy is csendben eldobja, csak
+    # a GPU-n, azután, hogy már fölöslegesen átment rajtuk a teljes
+    # pillar-feature pipeline. A valódi LiDAR (luminar_pcl) 360°-ban, akár
+    # 200+ méterig lát - ha ezt a 10 sweepes puffer előtt NEM vágjuk le, a
+    # pontok >95%-a tiszta zaj a modell szemszögéből, ÉS ez adta a mért ~1.4-4
+    # másodperces inferencia-időt sweep-enként (lásd a javítási jegyzőkönyvet
+    # a README "2026-10-29 javítások" szekciójában). Levágás után a mért idő
+    # ~0.37s-ra esett ugyanazon a GPU-n, 10 sweep helyett 5-tel (lásd lejjebb).
+    point_cloud_range: [-51.2, -51.2, -5.0, 51.2, 51.2, 3.0]
+
+    # 2026-10-29, FRISSÍTVE (lásd README "2026-10-29 javítások, 2. kör"):
+    # az eredeti indoklás (10 sweep -> 5, csak a dt-tartomány miatt) IGAZ
+    # volt, de NEM volt elég - egy súlyosabb okot hagyott ki, amit a
+    # kocka_full_20261007.mcap felvételen (ahol a célautó tényleg mozog,
+    # nem csak áll) derült ki:
+    #
+    # A sweep-puffer a sweepeket egyszerűen egymásra pakolja (lásd
+    # preprocessing.py - "NEM KOMPENZÁL EGO-MOZGÁSRA"), de ha a MOZGÓ
+    # célobjektum (nem csak az ego) elmozdul a sweep-ablakon belül, a
+    # pontjai NEM egy helyen halmozódnak, hanem a mozgás útja mentén
+    # szétkenődnek - a modell ezt egy ténylegesen nagyobb objektumnak látja.
+    # Mérve (score_threshold=0.3, car-only szűrés, ugyanaz a célobjektum,
+    # 80 egymást követő frame): a doboz hossza 4.5m-ről (helyes, szedán)
+    # 11-13m-re (!) nőtt, és a 'car' helyett 'truck'/'bus'-nak classifikálta
+    # a modell - EZÉRT nem jelent meg semmi a kimeneten, miközben a célautó
+    # LÁTHATÓAN, folyamatosan ott volt a pontfelhőn. Ez NEM TF/sync hiba,
+    # ez a kódban dokumentált "nincs ego/object-motion kompenzáció"
+    # hiányosság konkrét, mérhető tünete.
+    #
+    # Hatás num_sweeps értékekre (ugyanazon 80 frame-en, car-only szűrés):
+    #   num_sweeps=5 (korábbi): 24/80 frame-ben maradt 'car'  (30%)
+    #   num_sweeps=3:           40/80 frame-ben maradt 'car'  (50%)
+    #   num_sweeps=2:           77/80 frame-ben maradt 'car'  (96%) <- ez van most
+    #   num_sweeps=1:           80/80 frame-ben maradt 'car' (100%, de NULLA
+    #                           dt-infó -> a modell sebesség-becslése (vx,vy)
+    #                           megbízhatatlan/érdemben nem értelmezhető, ami
+    #                           egy AEB-nél a fékezési távolság/TTC-számításhoz
+    #                           kellene).
+    # num_sweeps=2 választva: majdnem olyan stabil, mint 1, de legalább EGY
+    # dt-mérés (két sweep közt) megmarad a sebesség-becsléshez. Ha a
+    # sebesség-kimenetet egyáltalán nem használjátok még (lásd lentebb, ego-
+    # kompenzáció sem kész), érdemes lehet inkább 1-re állítani -
+    # próbáljátok ki mindkettőt a saját bagjeiteken.
+    num_sweeps: 2
+
+    # A luminar_pcl 'intensity' mezője a felvett bageken kb. 0-2 közötti
+    # (UINT8 PointField, de a Luminar driver ebben a tartományban publikál),
+    # míg a nuScenes checkpoint a nuScenes LiDAR natív 0-255 skálájára van
+    # kalibrálva. Empirikusan (2 bag-en) az intenzitás kb. 100x-os
+    # felszorzása (0-2 -> 0-200, 255-nél levágva) a nyers detekciók
+    # konfidenciáját kb. 0.3-0.4-ről 0.5-0.55-re emelte, ÉS 'car' osztályú
+    # találat is megjelent, ahol előtte egyetlen bag-en sem volt. NEM teljes
+    # validáció - ha más bag-eken/más fényviszonyoknál ez rosszabb lenne,
+    # hangoljátok vissza 1.0-ra vagy közbülső értékre.
+    intensity_scale: 100.0
 
 aeb_adapter_node:
   ros__parameters:

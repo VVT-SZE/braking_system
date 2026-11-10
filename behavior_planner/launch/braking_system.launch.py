@@ -19,8 +19,33 @@ def generate_launch_description():
     # Config files for each node
     ctrl_config_file = join(get_package_share_directory("ctrl_long_emergency"), "config", "params.yaml")
     behavior_config_file = join(get_package_share_directory("behavior_planner"), "config", "params.yaml")
+    perception_config_file = join(get_package_share_directory("aeb_perception"), "config", "params.yaml")
 
     # Nodes
+    perception_node = Node(
+        package="aeb_perception",
+        executable="perception_node",
+        name="aeb_perception_node",
+        output="screen",
+        parameters=[perception_config_file]
+    )
+
+    adapter_node = Node(
+        package="aeb_perception",
+        executable="adapter_node",
+        name="aeb_adapter_node",
+        output="screen",
+        parameters=[perception_config_file]
+    )
+
+    detection_visualizer_node = Node(
+        package="aeb_perception",
+        executable="detection_visualizer",
+        name="aeb_detection_visualizer",
+        output="screen",
+        parameters=[perception_config_file]
+    )
+
     behavior_planner_node = Node(
         package="behavior_planner",
         executable="behavior_planner",
@@ -55,6 +80,9 @@ def generate_launch_description():
 
     return LaunchDescription([
         safety_distance_arg,
+        perception_node,
+        adapter_node,
+        detection_visualizer_node,
         behavior_planner_node,
         plan_long_emergency_node,
         ctrl_long_emergency_node,

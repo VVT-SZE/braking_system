@@ -4,3 +4,4 @@
         critical_distance: 200.0 # meters
         warning_threshold: -1.5 # m/s^2
         emergency_threshold: -2.5 # m/s^2
+        object_loss_grace_period: 0.3 # seconds - hold the last detected critical object this long before falling back to NO_ACTION

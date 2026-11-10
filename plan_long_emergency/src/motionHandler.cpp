@@ -41,15 +41,13 @@ brakingSystem::MotionHandler::MotionHandler() : Node("plan_long_emergency")
 
 void brakingSystem::MotionHandler::scenarioCallback(const tier4_planning_msgs::msg::Scenario::SharedPtr msg)
 {
-    // Log only if the scenario actually changes
+    // Only track the current scenario here - trajectory publishing is handled
+    // exclusively by targetSpaceCallback (it already covers NO_ACTION/WARNING
+    // via the simple-advance path), so this callback must not publish too, or
+    // the two callbacks race on the same output topic.
     if (m_current_scenario_ != msg->current_scenario) {
         m_current_scenario_ = msg->current_scenario;
         RCLCPP_INFO(this->get_logger(), "Strategy changed to: %s", m_current_scenario_.c_str());
-    }
-    if (m_current_scenario_ == "NO_ACTION" || m_current_scenario_ == "WARNING") {
-        autoware_planning_msgs::msg::Trajectory trajectory_msg;
-        m_pubTrajectory_->publish(trajectory_msg);
-        RCLCPP_INFO(this->get_logger(), "No relevant objects");
     }
 }
 
@@ -76,7 +74,7 @@ void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::Targ
     // empty object-list risk assesment, if empty just advance
     if (msg->relevant_objects.empty())
     {
-        RCLCPP_WARN(this->get_logger(), "No relevant objects");
+        RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "No relevant objects");
 
         autoware_planning_msgs::msg::Trajectory traj;
         traj.header = msg->header;
@@ -168,7 +166,7 @@ void brakingSystem::MotionHandler::targetSpaceCallback(const crp_msgs::msg::Targ
     // publish trajectory
     m_pubTrajectory_->publish(trajectory_msg);
 
-    RCLCPP_INFO(this->get_logger(), "Published trajectory");
+    RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "Published trajectory");
 }
 
 int main(int argc, char * argv[])

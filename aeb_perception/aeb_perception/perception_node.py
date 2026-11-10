@@ -54,8 +54,6 @@ class PerceptionNode(Node):
     def __init__(self):
         super().__init__("aeb_perception_node")
 
-        # TBD, lásd spec.md 6. szekció, nyitott kérdés #1 - a tényleges
-        # topicot a csapatnak el kell döntenie (1.8-as task).
         self.declare_parameter("lidar_topic", "/luminar_pcl")
         self.declare_parameter("output_topic", "/perception/detections")
         # FONTOS: a valódi járművön a statikus TF-fában ("lexus3/base_link

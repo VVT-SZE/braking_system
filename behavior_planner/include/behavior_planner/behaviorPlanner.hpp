@@ -31,6 +31,13 @@ namespace brakingSystem
 
         std::vector<autoware_perception_msgs::msg::PredictedObject> m_critical_objects_;
 
+        // Holds the last non-empty critical_objects snapshot so a single missed
+        // detection (perception flicker) doesn't immediately snap the scenario
+        // back to NO_ACTION - see object_loss_grace_period.
+        std::vector<autoware_perception_msgs::msg::PredictedObject> m_last_critical_objects_;
+        rclcpp::Time m_last_critical_objects_time_;
+        double m_object_loss_grace_period_{0.3};
+
         // Store the latest ego pose and heading
         geometry_msgs::msg::Pose m_ego_pose_;
         geometry_msgs::msg::Twist m_ego_twist_;

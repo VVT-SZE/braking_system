@@ -12,6 +12,7 @@ brakingSystem::BehaviorPlanner::BehaviorPlanner() : Node("behavior_planner")
     this->declare_parameter<double>("publish_rate", 50.0);
     this->declare_parameter<double>("warning_threshold", -1.5);
     this->declare_parameter<double>("emergency_threshold", -2.5);
+    this->declare_parameter<double>("object_loss_grace_period", 0.3);
 
     std::string inputTopicEgo;
     std::string inputTopicScenario;
@@ -28,6 +29,7 @@ brakingSystem::BehaviorPlanner::BehaviorPlanner() : Node("behavior_planner")
     this->get_parameter<double>("publish_rate", frequency);
     this->get_parameter<double>("warning_threshold", m_warning_threshold_);
     this->get_parameter<double>("emergency_threshold", m_emergency_threshold_);
+    this->get_parameter<double>("object_loss_grace_period", m_object_loss_grace_period_);
 
     m_trajectory_calculator_ = std::make_unique<TrajectoryCalculation>(m_safety_distance_);
 
@@ -96,6 +98,12 @@ void brakingSystem::BehaviorPlanner::scenarioCallback(const crp_msgs::msg::Scena
         }
     }
     m_critical_objects_ = critical_objects;
+
+    if (!critical_objects.empty())
+    {
+        m_last_critical_objects_ = critical_objects;
+        m_last_critical_objects_time_ = this->now();
+    }
 }
 
 void brakingSystem::BehaviorPlanner::egoCallback(const crp_msgs::msg::Ego::SharedPtr msg)
@@ -110,18 +118,35 @@ void brakingSystem::BehaviorPlanner::run()
     auto target_space_msg = crp_msgs::msg::TargetSpace();
     auto scenario_msg = tier4_planning_msgs::msg::Scenario();
     // TODO: implement the logic to determine the scenario and target space based on the critical objects and ego state. For now, we will just publish the closest critical object if it exists.
+    const std::vector<autoware_perception_msgs::msg::PredictedObject> *active_objects = nullptr;
     if (!m_critical_objects_.empty())
     {
+        active_objects = &m_critical_objects_;
+    }
+    else if (!m_last_critical_objects_.empty() &&
+             (this->now() - m_last_critical_objects_time_).seconds() < m_object_loss_grace_period_)
+    {
+        // Perception momentarily lost the object (sweep-to-sweep detection flicker) -
+        // hold the last known object instead of snapping back to NO_ACTION right away.
+        active_objects = &m_last_critical_objects_;
+        RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
+            "No critical objects this cycle, holding last known object (object_loss_grace_period=%.2fs).",
+            m_object_loss_grace_period_);
+    }
+
+    if (active_objects != nullptr)
+    {
         auto closest_obj = std::min_element(
-            m_critical_objects_.begin(),
-            m_critical_objects_.end(),
+            active_objects->begin(),
+            active_objects->end(),
             [](const autoware_perception_msgs::msg::PredictedObject &a, const autoware_perception_msgs::msg::PredictedObject &b)
             {
                 return a.kinematics.initial_pose_with_covariance.pose.position.x <
                        b.kinematics.initial_pose_with_covariance.pose.position.x;
             });
 
-        RCLCPP_INFO(this->get_logger(), "Closest critical object at x=%.2f m with velocity=%.2f m/s and acceleration=%.2f m/s^2, Ego velocity: %.2f m/s, Ego acceleration: %.2f m/s^2",
+        RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
+                    "Closest critical object at x=%.2f m with velocity=%.2f m/s and acceleration=%.2f m/s^2, Ego velocity: %.2f m/s, Ego acceleration: %.2f m/s^2",
                     closest_obj->kinematics.initial_pose_with_covariance.pose.position.x,
                     closest_obj->kinematics.initial_twist_with_covariance.twist.linear.x,
                     closest_obj->kinematics.initial_acceleration_with_covariance.accel.linear.x,
@@ -135,11 +160,11 @@ void brakingSystem::BehaviorPlanner::run()
             m_ego_twist_.linear.x,
             m_ego_accel_.linear.x);
 
-        RCLCPP_INFO(this->get_logger(), "Calculated max acceleration: %.2f m/s^2", max_deceleration);
+        RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "Calculated max acceleration: %.2f m/s^2", max_deceleration);
 
         if (max_deceleration < -9.81) // LONG_EMERGENCY_IMPACT
         {
-            RCLCPP_ERROR(this->get_logger(), "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_deceleration);
+            RCLCPP_ERROR_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "Critical object detected within %f meters. Max acceleration: %f", m_critical_distance_, max_deceleration);
             scenario_msg.current_scenario = "LONG_EMERGENCY_IMPACT";
             m_highest_strategy_ = "LONG_EMERGENCY_IMPACT";
         }
@@ -175,10 +200,11 @@ void brakingSystem::BehaviorPlanner::run()
     }
     else
     {
-        RCLCPP_INFO(this->get_logger(), "No critical objects detected.");
+        RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "No critical objects detected.");
         target_space_msg.header.stamp = this->now();
         target_space_msg.header.frame_id = "base_link";
         scenario_msg.current_scenario = "NO_ACTION";
+        m_highest_strategy_ = "NO_ACTION";
     }
 
     m_pubScenario_->publish(scenario_msg);

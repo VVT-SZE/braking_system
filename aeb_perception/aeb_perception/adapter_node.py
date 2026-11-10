@@ -1,6 +1,12 @@
 """Adapter: autoware_perception_msgs/DetectedObjects + Odometry
 -> crp_msgs::msg::Scenario (local_moving_objects) + crp_msgs::msg::Ego.
 
+Felelős az bojectumok sebességéértékének és a jármű aktuális állapotának (pose, twist, accel) 
+a behavior_planner által elvárt formátumba történő átalakításáért.
+Lidár és kamera detektált objektumokból PredictedObject listát készít, 
+a jármű aktuális állapotát pedig Ego üzenetbe csomagolja az odometry(novel/odom7) topic alapján.
+
+
 A mezőleképezés és a topic-nevek a braking_system repó forrásából vannak
 leellenőrizve (behavior_planner/src/behaviorPlanner.cpp), NEM csak a
 spec.md táblázatából kitalálva:

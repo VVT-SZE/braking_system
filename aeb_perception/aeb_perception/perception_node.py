@@ -33,10 +33,13 @@ odom-mintát ragasztja a jelen LiDAR-sweephez.
 Paraméterek (lásd config/params.yaml): lidar_topic, output_topic,
 base_frame, model_config, checkpoint, device, score_threshold, num_sweeps.
 """
+import os
 import time
 
+import mmdet3d
 import numpy as np
 import rclpy
+from ament_index_python.packages import get_package_share_directory
 from autoware_perception_msgs.msg import DetectedObjects
 from geometry_msgs.msg import TransformStamped
 from rclpy.node import Node
@@ -101,12 +104,14 @@ class PerceptionNode(Node):
         point_cloud_range = self.get_parameter("point_cloud_range").value
         point_cloud_range = tuple(point_cloud_range) if point_cloud_range else None
 
-        model_config = self.get_parameter("model_config").value
-        checkpoint = self.get_parameter("checkpoint").value
+        model_config = self._resolve_model_config_path(
+            self.get_parameter("model_config").value
+        )
+        checkpoint = self._resolve_share_path(self.get_parameter("checkpoint").value)
         if not model_config or not checkpoint:
             raise RuntimeError(
                 "A 'model_config' és 'checkpoint' paramétereket kötelező "
-                "beállítani (lásd config/params.yaml)."
+                "beállítani (lásd config/params.yaml és INSTALL.md)."
             )
 
         self.get_logger().info(f"Modell betöltése: {checkpoint}")
@@ -139,6 +144,29 @@ class PerceptionNode(Node):
             f"Kimenet: {self._output_topic}. "
             f"point_cloud_range={point_cloud_range}, intensity_scale={self._intensity_scale}."
         )
+
+    @staticmethod
+    def _resolve_share_path(path: str) -> str:
+        """Relatív 'checkpoint' útvonalat a package share-dir-hez képest
+        old fel, hogy a params.yaml ne egy konkrét gép abszolút
+        home-útvonalára legyen hardcode-olva (lásd INSTALL.md) - abszolút
+        útvonalat változatlanul hagy."""
+        if not path or os.path.isabs(path):
+            return path
+        return os.path.join(get_package_share_directory("aeb_perception"), path)
+
+    @staticmethod
+    def _resolve_model_config_path(path: str) -> str:
+        """Relatív 'model_config' a TELEPÍTETT mmdet3d pip-csomag saját
+        bundle-ölt configjaihoz (.mim/configs/) képest old fel - a PyPI
+        mmdet3d==1.4.0 wheel ezeket saját magában hordozza, nincs szükség
+        semmilyen vendorelt másolatra a repóban (lásd requirements.txt
+        megjegyzése és INSTALL.md) - abszolút útvonalat változatlanul
+        hagy."""
+        if not path or os.path.isabs(path):
+            return path
+        mim_configs = os.path.join(os.path.dirname(mmdet3d.__file__), ".mim", "configs")
+        return os.path.join(mim_configs, path)
 
     def _on_pointcloud(self, msg: PointCloud2) -> None:
         # EZ a stamp megy ki a végén a kimeneti header.stamp-be - a

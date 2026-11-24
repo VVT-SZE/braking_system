@@ -10,10 +10,17 @@ aeb_perception_node:
     output_topic: "/perception/detections"
     base_frame: "lexus3/base_link"
 
-    # Állítsd a tényleges elérési útra - lehet ugyanaz a gép (Windows+WSL2 /
-    # külön Linux doboz GPU-val), amin a notebookot futtattad.
-    model_config: "/home/beni0900/mmdetection3d/configs/centerpoint/centerpoint_pillar02_second_secfpn_head-circlenms_8xb4-cyclic-20e_nus-3d.py"
-    checkpoint: "/home/beni0900/mmdetection3d/checkpoints/centerpoint_pillar02_nuscenes.pth"
+    # model_config: RELATÍV útvonal - a perception_node a TELEPÍTETT
+    # mmdet3d pip-csomag saját bundle-ölt configjaihoz (.mim/configs/)
+    # képest oldja fel (lásd perception_node.py
+    # _resolve_model_config_path) - a PyPI mmdet3d==1.4.0 wheel ezeket
+    # saját magában hordozza, a repóban NINCS belőlük másolat.
+    model_config: "centerpoint/centerpoint_pillar02_second_secfpn_head-circlenms_8xb4-cyclic-20e_nus-3d.py"
+
+    # checkpoint: RELATÍV útvonal, de ez a package share-dir-hez képest
+    # (a ~24 MB-os súlyfájl a repóban van, config/checkpoints/ alatt -
+    # ezt NEM a mmdet3d csomag adja, azt külön kell tárolni).
+    checkpoint: "checkpoints/centerpoint_pillar02_nuscenes.pth"
 
     device: "cuda:0"   # "cpu", ha ezen a gépen nincs GPU
     score_threshold: 0.3

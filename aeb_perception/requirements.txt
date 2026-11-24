@@ -82,6 +82,13 @@ charset-normalizer==3.5.2
 cloudpickle==3.1.2
 colorama==0.4.4
 contourpy==1.3.2
+# A --system-site-packages venv látja az Ubuntu 22.04 apt-os
+# python3-coverage-ját (6.2, NINCS benne coverage.types) - a numba
+# (amit a mmdet3d importál) ezt feltétlenül importálja és
+# coverage.types.Tracer-t használ, 6.2-vel AttributeError-ral elhasal
+# a perception_node indításakor. Ez a pip-es, újabb verzió felülírja a
+# régi system-eset (a venv saját site-packages-e elsőbbséget kap).
+coverage>=7.0
 cycler==0.11.0
 decorator==4.4.2
 Deprecated==1.2.13

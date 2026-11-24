@@ -13,7 +13,8 @@ sudo apt install --yes \
 
 ```bash
 cd ~
-git clone https://github.com/VVT-SZE/braking_system.git vvt_ws_src_braking_system
+git clone https://github.com/VVT-SZE/braking_system.git
+git checkout feature/perception-node
 ```
 
 Csak ez az **egy** clone kell. A `mmdet3d` Python package-kód ÉS a
@@ -62,6 +63,16 @@ print('mmdet3d', mmdet3d.__version__, mmdet3d.__file__)
 Ha `torch.cuda.is_available()` `False`-t ad, de van GPU-d, lásd lentebb a
 "Melyik CUDA-verziót válasszam" szekciót - valószínűleg a torch-wheel CUDA
 verziója nem kompatibilis a driverrel.
+
+Ha a `import mmdet3d` ezzel hasal el: `AttributeError: module 'coverage'
+has no attribute 'types'` - ez a `--system-site-packages` egy ismert
+mellékhatása: a venv látja az Ubuntu 22.04 apt-os, régi (6.2)
+`python3-coverage`-ját, amiben nincs `coverage.types`, és a `numba`
+(amit a `mmdet3d` importál) ezt feltétlenül használja. A
+`requirements.txt`-ben lévő `coverage>=7.0` sor ezt lefedi (a venv saját,
+pip-telepített verziója felülírja a system-eset) - ha régebbi
+`requirements.txt`-vel telepítettél, csak futtasd újra a `pip install -r
+requirements.txt`-t.
 
 ---
 

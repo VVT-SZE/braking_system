@@ -20,7 +20,7 @@ aeb_perception_node:
     # checkpoint: RELATÍV útvonal, de ez a package share-dir-hez képest
     # (a ~24 MB-os súlyfájl a repóban van, config/checkpoints/ alatt -
     # ezt NEM a mmdet3d csomag adja, azt külön kell tárolni).
-    checkpoint: "checkpoints/centerpoint_pillar02_nuscenes.pth"
+    checkpoint: "config/checkpoints/centerpoint_pillar02_nuscenes.pth"
 
     device: "cuda:0"   # "cpu", ha ezen a gépen nincs GPU
     score_threshold: 0.3

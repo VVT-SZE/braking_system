@@ -6,6 +6,9 @@
     },
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/ros2_ws/src/braking_system,type=bind",
     "workspaceFolder": "/workspace/ros2_ws/src/braking_system",
+    "hostRequirements": {
+        "gpu": true
+    },
     "runArgs": [
         "--gpus=all",
         "--network=host",
